@@ -127,12 +127,12 @@ const UsersManagementWithQuery: React.FC = () => {
       )}
       
       {/* Empty State */}
-      {!isLoading && (!data || data.data.length === 0) && (
+      {!isLoading && (!data || !data.data || data.data.length === 0) && (
         <div className="empty-state">No users found</div>
       )}
       
       {/* Users Table */}
-      {data && data.data.length > 0 && (
+      {data && data.data && data.data.length > 0 && (
         <>
           <table className="users-table">
             <thead>
