@@ -4,6 +4,7 @@ import { ConfigProvider } from 'antd'
 import { Provider } from 'react-redux'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { store } from '../store'
+import themeConfig from '../theme/themeConfig'
 import '../styles/globals.css'
 
 // Create a client for React Query
@@ -20,7 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <ConfigProvider>
+        <ConfigProvider theme={themeConfig}>
           <Component {...pageProps} />
         </ConfigProvider>
       </QueryClientProvider>

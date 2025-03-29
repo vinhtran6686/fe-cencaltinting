@@ -1,11 +1,10 @@
 # CENCALTINTING Frontend
 
-A modern web application for CENCALTINTING built with Next.js, TypeScript, and Ant Design.
+CENCALTINTING built with Next.js, TypeScript, and Ant Design.
 
 ## Project Overview
 
-- **Project Name:** CENCALTINTING
-- **Project Scale:** Enterprise Application
+- **Project Name:** CENCALTINTING 
 - **Architecture:** Modular structure with Pages Router pattern
 
 ## Technology Stack
