@@ -8,7 +8,6 @@ import {
   deleteAppointment 
 } from './appointmentsThunks';
 
-// Initial state
 const initialState: AppointmentState = {
   appointments: [],
   selectedAppointmentId: null,
@@ -21,12 +20,10 @@ const initialState: AppointmentState = {
   }
 };
 
-// Slice
 const appointmentsSlice = createSlice({
   name: 'appointments',
   initialState,
   reducers: {
-    // Synchronous actions
     selectAppointment: (state, action: PayloadAction<string | null>) => {
       state.selectedAppointmentId = action.payload;
     },
@@ -45,9 +42,7 @@ const appointmentsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle async actions
     builder
-      // Fetch appointments
       .addCase(fetchAppointments.pending, (state) => {
         state.status = 'loading';
       })
@@ -60,8 +55,6 @@ const appointmentsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-      
-      // Fetch appointment by ID
       .addCase(fetchAppointmentById.pending, (state) => {
         state.status = 'loading';
       })
@@ -80,8 +73,6 @@ const appointmentsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-      
-      // Add appointment
       .addCase(addAppointment.pending, (state) => {
         state.status = 'loading';
       })
@@ -94,8 +85,6 @@ const appointmentsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-
-      // Update appointment
       .addCase(updateAppointment.pending, (state) => {
         state.status = 'loading';
       })
@@ -111,8 +100,6 @@ const appointmentsSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-
-      // Delete appointment
       .addCase(deleteAppointment.pending, (state) => {
         state.status = 'loading';
       })
@@ -131,8 +118,6 @@ const appointmentsSlice = createSlice({
   },
 });
 
-// Export actions
 export const { selectAppointment, setFilter, clearFilters } = appointmentsSlice.actions;
 
-// Export reducer
 export default appointmentsSlice.reducer;

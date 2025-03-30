@@ -2,14 +2,12 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../../../store';
 import { Appointment } from './appointmentTypes';
 
-// Basic selectors
 export const selectAllAppointments = (state: RootState) => state.appointments.appointments;
 export const selectAppointmentStatus = (state: RootState) => state.appointments.status;
 export const selectAppointmentError = (state: RootState) => state.appointments.error;
 export const selectSelectedAppointmentId = (state: RootState) => state.appointments.selectedAppointmentId;
 export const selectFilters = (state: RootState) => state.appointments.filters;
 
-// Derived selectors
 export const selectSelectedAppointment = createSelector(
   [selectAllAppointments, selectSelectedAppointmentId],
   (appointments, selectedId) => {
@@ -24,12 +22,10 @@ export const selectFilteredAppointments = createSelector(
     return appointments.filter((appointment: Appointment) => {
       let match = true;
       
-      // Filter by status
       if (filters.status && appointment.status !== filters.status) {
         match = false;
       }
       
-      // Filter by date range
       if (filters.fromDate) {
         const fromDate = new Date(filters.fromDate);
         const appointmentDate = new Date(appointment.date);

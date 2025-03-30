@@ -1,6 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { refreshToken } from './authService'
-// import { logErrorToService } from './errorService'
 import { sanitizeRequestData, sanitizeResponseData } from '../utils/security'
 import { API_TIMEOUT, MAX_RETRY_ATTEMPTS } from '../constants/api'
 import { notificationService } from './notificationService'
@@ -31,11 +30,11 @@ export interface CustomRequestConfig extends AxiosRequestConfig {
 // Create API instance with extended configuration
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: API_TIMEOUT, // Using API_TIMEOUT from constants
+  timeout: API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest', // Helps identify AJAX requests
+    'X-Requested-With': 'XMLHttpRequest',
   },
   withCredentials: true, // For CSRF protection with cookies
 });
@@ -84,10 +83,8 @@ const createCancelToken = (config: ExtendedRequestConfig): ExtendedRequestConfig
 // Request interceptor
 api.interceptors.request.use(
   async (config: ExtendedRequestConfig) => {
-    // Apply cancel token for GET requests to prevent race conditions
-    if (config.method?.toLowerCase() === 'get') {
-      config = createCancelToken(config);
-    }
+    // Apply cancel token for ALL requests to prevent race conditions
+    config = createCancelToken(config);
 
     // Authentication token handling
     const token = localStorage.getItem('token');
@@ -162,7 +159,6 @@ api.interceptors.response.use(
     }
 
     // Only show success notifications if explicitly requested
-    // This prevents duplicate notifications when handleApiSuccess is used
     if (response.data && response.data?.message && config.showSuccessNotification) {
       safeShowSuccessNotification('Success', response.data.message);
     }
@@ -170,7 +166,16 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+
     const originalRequest = error.config as ExtendedRequestConfig | undefined;
+
+    // Clean up cancel token if exists for error cases too
+    if (originalRequest) {
+      const requestId = originalRequest.url + JSON.stringify(originalRequest.params);
+      if (pendingRequests.has(requestId)) {
+        pendingRequests.delete(requestId);
+      }
+    }
 
     // Handle token expiration (401)
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
@@ -216,9 +221,6 @@ api.interceptors.response.use(
 
     // Show notification based on error type and status code 
     safeHandleApiError(formattedError);
-
-    // Log error to monitoring service (e.g., Sentry)
-    // logErrorToService(formattedError);
 
     return Promise.reject(formattedError);
   }

@@ -35,8 +35,7 @@ export const refreshToken = async (): Promise<string | null> => {
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-    
-    // Call refresh token API - do not use main API instance to avoid infinite loop
+     
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
       { refreshToken }

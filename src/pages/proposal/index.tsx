@@ -25,8 +25,7 @@ import { useHandleApiSuccess } from '../../utils/apiResponseHandler'
 import { useNotification } from '../../components/providers/NotificationProvider'
 import { API_ENDPOINTS } from '../../constants/api'
 import { AxiosRequestConfig } from 'axios'
-
-// Extend AxiosRequestConfig to include our custom property
+ 
 interface ExtendedRequestConfig extends AxiosRequestConfig {
   showSuccessNotification?: boolean;
 }
@@ -34,31 +33,24 @@ interface ExtendedRequestConfig extends AxiosRequestConfig {
 const { Title, Paragraph, Text } = Typography
 const { TextArea } = Input;
 
-const ProposalPage: React.FC = () => {
-  // Use the notification hook
+const ProposalPage: React.FC = () => { 
   const notification = useNotification();
-  
-  // Use the API response handler hook
+   
   const handleApiSuccess = useHandleApiSuccess();
-
-  // State for custom notification modal
+ 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customTitle, setCustomTitle] = useState('Custom Notification');
   const [customMessage, setCustomMessage] = useState('This is a custom notification message');
-  
-  // Handler functions for API calls
+   
   const handleCallApi = async (endpoint: string, title: string, color: string, statusCode: number) => {
-    try {
-      // For success endpoints, we'll control the notification manually
+    try { 
       const config: ExtendedRequestConfig | undefined = endpoint.includes('success') 
-        ? { showSuccessNotification: false } // Disable automatic notifications
+        ? { showSuccessNotification: false }
         : undefined;
         
       const response = await apiService.get(endpoint, undefined, config); 
-      
-      // Handle success responses (only for success endpoint)
-      if (endpoint.includes('success')) {
-        // Use message from API response or fallback to default
+       
+      if (endpoint.includes('success')) { 
         const responseData = response.data as Record<string, any>;
         const successMessage = responseData?.message || `Success notification from ${title}`;
         handleApiSuccess(response.data, {
@@ -66,45 +58,54 @@ const ProposalPage: React.FC = () => {
           successMessage
         });
       }
-    } catch (error: any) {
-      // Error notifications are handled automatically by the API interceptor
+    } catch (error: any) { 
       console.error(`Error calling ${endpoint}:`, error);
     }
   };
   const handleCallApi2 = async (endpoint: string, title: string, color: string, statusCode: number) => {
-    try {
-      // For success endpoints, we'll control the notification manually
+    try { 
       const config: ExtendedRequestConfig | undefined = endpoint.includes('success') 
-        ? { showSuccessNotification: false } // Disable automatic notifications
+        ? { showSuccessNotification: false }
         : undefined;
         
       const response = await apiService.get(endpoint, undefined, config);  
-    } catch (error: any) {
-      // Error notifications are handled automatically by the API interceptor
+    } catch (error: any) { 
       console.error(`Error calling ${endpoint}:`, error);
     }
   };
   
-  // Function to call API with custom notification
   const handleCustomApiCall = async () => {
     try {
-      // Use a success endpoint but override the notification
-      // Disable automatic notification from API interceptor
       const config: ExtendedRequestConfig = { showSuccessNotification: false };
       const response = await apiService.get(API_ENDPOINTS.NOTIFICATIONS.SUCCESS, undefined, config);
       
-      // Show custom notification
       notification.showSuccess(customTitle, customMessage);
       
       setIsModalOpen(false);
     } catch (error: any) {
-      // If API call fails, show error with custom message
       notification.showError(customTitle, customMessage);
       setIsModalOpen(false);
     }
   };
 
-  // List of test endpoints with icon and color information
+  const testAbortController = async () => {
+    for (let i = 0; i < 5; i++) {
+      console.log(`Sending request ${i+1}`);
+      
+      setTimeout(() => {
+        apiService.get(API_ENDPOINTS.NOTIFICATIONS.SUCCESS)
+          .then(response => console.log(`Request ${i+1} succeeded`))
+          .catch(error => {
+            if (error.message && error.message.includes('canceled')) {
+              console.log(`Request ${i+1} was cancelled`);
+            } else {
+              console.error(`Request ${i+1} failed:`, error);
+            }
+          });
+      }, i * 50);
+    }
+  };
+
   const testEndpoints = [
     { 
       title: 'Success Notification', 
@@ -202,7 +203,6 @@ const ProposalPage: React.FC = () => {
             </Col>
           ))}
           
-          {/* Custom notification button */}
           <Col xs={24} sm={12} md={8} lg={6}>
             <Card 
               title={<span><EditOutlined /> Custom Notification</span>}
@@ -227,6 +227,31 @@ const ProposalPage: React.FC = () => {
               </Button>
             </Card>
           </Col>
+ 
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Card 
+              title={<span>Test Abort Controller</span>}
+              size="small" 
+              extra={<Tag color="processing">Test</Tag>}
+              style={{ 
+                height: '100%', 
+                borderTop: '2px solid #722ed1' 
+              }}
+            >
+              <Paragraph>Tests cancellation of duplicate requests</Paragraph>
+              <Paragraph type="secondary" style={{ fontSize: '12px' }}>
+                Sends multiple identical requests rapidly
+              </Paragraph>
+              <Button 
+                type="primary"
+                onClick={testAbortController}
+                style={{ marginTop: '8px', background: '#722ed1' }}
+                block
+              >
+                Spam Test
+              </Button>
+            </Card>
+          </Col>
         </Row>
 
         <Divider />
@@ -244,7 +269,6 @@ const ProposalPage: React.FC = () => {
         </Card>
       </Card>
       
-      {/* Custom Notification Modal */}
       <Modal
         title="Custom Notification"
         open={isModalOpen}

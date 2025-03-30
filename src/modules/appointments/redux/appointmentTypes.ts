@@ -1,26 +1,21 @@
-// Types for Appointment feature
-
-// Appointment model
 export interface Appointment {
   id: string;
   title: string;
   date: string;
   time: string;
   clientId: string;
-  clientName?: string; // Optional, có thể được join từ clients
+  clientName?: string;
   status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
   notes?: string;
-  services: string[]; // IDs của các dịch vụ
+  services: string[];
   vehicleInfo?: {
     make?: string;
     model?: string;
     year?: number;
     color?: string;
   };
-  // Thêm các trường khác khi cần thiết
 }
 
-// State for appointment feature
 export interface AppointmentState {
   appointments: Appointment[];
   selectedAppointmentId: string | null;
