@@ -15,11 +15,12 @@ export const useCurrentUser = () => {
 /**
  * Hook for fetching a paginated list of users
  */
-export const useUsers = (page = 1, limit = 10) => {
+export const useUsers = (page = 1, limit = 10, options ={}) => {
   return useQuery({
     queryKey: ['users', page, limit],
     queryFn: () => UserService.getUsers(page, limit),
-    placeholderData: (previousData) => previousData, // For React Query v4+
+    placeholderData: (previousData) => previousData, 
+    ...options
   });
 };
 

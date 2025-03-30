@@ -1,4 +1,4 @@
-import { apiService } from './api';
+import { apiService } from './apiService';
 import { API_ENDPOINTS } from '../constants/api';
 import { User, UserCreateInput, UserUpdateInput, UserListResponse } from '../models/User';
 
@@ -14,7 +14,7 @@ export class UserService {
     const response = await apiService.get<User>(API_ENDPOINTS.USERS.ME);
     return response.data;
   }
-  
+
   /**
    * Get a paginated list of users
    * @param page Page number (starts at 1)
@@ -24,11 +24,14 @@ export class UserService {
   static async getUsers(page = 1, limit = 10): Promise<UserListResponse> {
     const response = await apiService.get<UserListResponse>(
       API_ENDPOINTS.USERS.LIST,
-      { page, limit }
+      { page, limit },
+      {
+        showSuccessNotification: true,
+      }
     );
     return response.data;
   }
-  
+
   /**
    * Get details for a specific user by ID
    * @param id User ID
@@ -38,7 +41,7 @@ export class UserService {
     const response = await apiService.get<User>(API_ENDPOINTS.USERS.DETAIL(id));
     return response.data;
   }
-  
+
   /**
    * Create a new user
    * @param userData User data to create
@@ -51,7 +54,7 @@ export class UserService {
     );
     return response.data;
   }
-  
+
   /**
    * Update an existing user
    * @param id User ID
@@ -65,7 +68,7 @@ export class UserService {
     );
     return response.data;
   }
-  
+
   /**
    * Delete a user by ID
    * @param id User ID to delete

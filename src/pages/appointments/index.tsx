@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Typography, Card, Table, Button, Space, Tag } from 'antd'
-import { useAppDispatch, useAppSelector } from '../../store'
+import { useAppDispatch, useAppSelector } from '../../store' 
 import { appointments } from '../../modules/appointments'
 import { fetchAppointments } from '../../modules/appointments/redux/appointmentsThunks'
 
@@ -87,7 +87,7 @@ const AppointmentsPage: React.FC = () => {
         
         <Card>
           <Table 
-            dataSource={appointmentsList.map((app: any) => ({ ...app, key: app.id }))} 
+            dataSource={Array.isArray(appointmentsList) ? appointmentsList.map((app: any) => ({ ...app, key: app.id })) : []} 
             columns={columns} 
             pagination={{ pageSize: 10 }}
             rowKey="id"

@@ -1,5 +1,6 @@
 // Maximum request timeout (ms)
-export const API_TIMEOUT = 30000;
+export const API_TIMEOUT = process.env.NEXT_PUBLIC_API_TIMEOUT ? 
+  parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT) : 30000;
 
 // Maximum retry attempts when request fails
 export const MAX_RETRY_ATTEMPTS = 3;
@@ -40,6 +41,15 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string | number) => `/orders/${id}`,
     CREATE: '/orders',
   },
+
+  // Notification test endpoints
+  NOTIFICATIONS: {
+    SUCCESS: '/api/v1/easyplayers/notifications/success',
+    FORBIDDEN: '/api/v1/easyplayers/notifications/forbidden',
+    UNAUTHORIZED: '/api/v1/easyplayers/notifications/unauthorized',
+    NOT_FOUND: '/api/v1/easyplayers/notifications/not-found',
+    SERVER_ERROR: '/api/v1/easyplayers/notifications/server-error',
+  }
 };
 
 // HTTP Status codes

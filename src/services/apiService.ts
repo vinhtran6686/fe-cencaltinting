@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { refreshToken } from './authService'
-import { logErrorToService } from './errorService'
+// import { logErrorToService } from './errorService'
 import { sanitizeRequestData, sanitizeResponseData } from '../utils/security'
 import { API_TIMEOUT, MAX_RETRY_ATTEMPTS } from '../constants/api'
+import { notificationService } from './notificationService'
 
 // Type definitions
 export interface ApiResponse<T = any> {
@@ -19,12 +20,18 @@ interface ExtendedRequestConfig extends InternalAxiosRequestConfig {
   metadata?: {
     startTime: number;
   };
+  showSuccessNotification?: boolean;
+}
+
+// Thêm định nghĩa custom request config
+export interface CustomRequestConfig extends AxiosRequestConfig {
+  showSuccessNotification?: boolean;
 }
 
 // Create API instance with extended configuration
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: API_TIMEOUT || 30000, // Default timeout: 30 seconds
+  timeout: API_TIMEOUT, // Using API_TIMEOUT from constants
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -38,7 +45,7 @@ const retryQueue = new Map();
 const retryRequest = (config: ExtendedRequestConfig, retryCount = 0) => {
   const requestId = config.url + JSON.stringify(config.params);
   retryQueue.set(requestId, { config, retryCount });
-  
+
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       api.request(config)
@@ -58,19 +65,19 @@ const retryRequest = (config: ExtendedRequestConfig, retryCount = 0) => {
 const pendingRequests = new Map();
 const createCancelToken = (config: ExtendedRequestConfig): ExtendedRequestConfig => {
   const requestId = config.url + JSON.stringify(config.params);
-  
+
   // Cancel previous pending request with same ID
   if (pendingRequests.has(requestId)) {
     const controller = pendingRequests.get(requestId);
     controller.abort();
     pendingRequests.delete(requestId);
   }
-  
+
   // Create new AbortController
   const controller = new AbortController();
   config.signal = controller.signal;
   pendingRequests.set(requestId, controller);
-  
+
   return config;
 };
 
@@ -81,33 +88,59 @@ api.interceptors.request.use(
     if (config.method?.toLowerCase() === 'get') {
       config = createCancelToken(config);
     }
-    
+
     // Authentication token handling
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // CSRF protection if needed
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (csrfToken) {
       config.headers['X-CSRF-Token'] = csrfToken;
     }
-    
+
     // Sanitize request data for security
     if (config.data) {
       config.data = sanitizeRequestData(config.data);
     }
-    
+
     // Add request timestamp for debugging/logging
     config.metadata = { startTime: new Date().getTime() };
-    
+
     return config;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
+
+// Function to safely show success notification from interceptor
+const safeShowSuccessNotification = (title: string, message: string) => {
+  // Check if we're in a browser environment
+  if (typeof window !== 'undefined') {
+    try {
+      notificationService.showSuccess(title, message);
+    } catch (e) {
+      console.warn('Failed to show notification:', e);
+    }
+  }
+};
+
+// Function to safely handle API error notification from interceptor
+const safeHandleApiError = (error: any) => {
+  // Check if we're in a browser environment
+  if (typeof window !== 'undefined') {
+    try {
+      notificationService.showApiError(error);
+    } catch (e) {
+      console.warn('Failed to show error notification:', e);
+      // Fallback to console for errors
+      console.error(`API Error: ${error.message || error.data?.message || 'Unknown error'}`);
+    }
+  }
+};
 
 // Response interceptor
 api.interceptors.response.use(
@@ -116,23 +149,29 @@ api.interceptors.response.use(
     // Calculate request duration for performance monitoring
     const requestTime = new Date().getTime() - (config.metadata?.startTime || 0);
     console.debug(`Request to ${config.url} took ${requestTime}ms`);
-    
+
     // Clean up cancel token if exists
     const requestId = config.url + JSON.stringify(config.params);
     if (pendingRequests.has(requestId)) {
       pendingRequests.delete(requestId);
     }
-    
+
     // Sanitize response data for security
     if (response.data) {
       response.data = sanitizeResponseData(response.data);
     }
-    
+
+    // Only show success notifications if explicitly requested
+    // This prevents duplicate notifications when handleApiSuccess is used
+    if (response.data && response.data?.message && config.showSuccessNotification) {
+      safeShowSuccessNotification('Success', response.data.message);
+    }
+
     return response;
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as ExtendedRequestConfig | undefined;
-    
+
     // Handle token expiration (401)
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -151,10 +190,10 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     // Handle retry logic for certain errors (network, 5xx)
     if ((error.code === 'ECONNABORTED' || (error.response?.status !== undefined && error.response?.status >= 500)) &&
-        originalRequest && !originalRequest._retry) {
+      originalRequest && !originalRequest._retry) {
       const retryCount = originalRequest._retryCount || 0;
       if (retryCount < MAX_RETRY_ATTEMPTS) {
         originalRequest._retryCount = retryCount + 1;
@@ -162,7 +201,7 @@ api.interceptors.response.use(
         return retryRequest(originalRequest, retryCount);
       }
     }
-    
+
     // Categorize and format error for better handling
     const formattedError = {
       status: error.response?.status,
@@ -170,42 +209,36 @@ api.interceptors.response.use(
       data: error.response?.data,
       message: error.message,
       type: error.code === 'ECONNABORTED' ? 'timeout' :
-            !error.response ? 'network' : 
-            error.response.status >= 500 ? 'server' : 'client',
+        !error.response ? 'network' :
+          error.response.status >= 500 ? 'server' : 'client',
       originalError: error,
     };
-    
+
+    // Show notification based on error type and status code 
+    safeHandleApiError(formattedError);
+
     // Log error to monitoring service (e.g., Sentry)
-    logErrorToService(formattedError);
-    
-    // Show appropriate user message based on error type
-    if (formattedError.type === 'network') {
-      console.error('Network error: Please check your internet connection');
-    } else if (formattedError.type === 'timeout') {
-      console.error('Request timeout: The server took too long to respond');
-    } else if (formattedError.type === 'server') {
-      console.error('Server error: Our team has been notified');
-    }
-    
+    // logErrorToService(formattedError);
+
     return Promise.reject(formattedError);
   }
 );
 
 // API service abstraction for better testability and organization
 export const apiService = {
-  get: <T>(url: string, params?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+  get: <T>(url: string, params?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
     api.get(url, { ...config, params }),
-    
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+
+  post: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
     api.post(url, data, config),
-    
-  put: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+
+  put: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
     api.put(url, data, config),
-    
-  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+
+  patch: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
     api.patch(url, data, config),
-    
-  delete: <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> =>
+
+  delete: <T>(url: string, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
     api.delete(url, config),
 };
 

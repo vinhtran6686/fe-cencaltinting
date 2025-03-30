@@ -1,6 +1,6 @@
 // Transactions services using centralized API configuration
 
-import { apiService } from '../../../services/api';
+import { apiService } from '../../../services/apiService';
 import { Transaction } from '../redux/transactionsTypes';
 
 const API_ENDPOINT = '/transactions';

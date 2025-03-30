@@ -118,3 +118,46 @@ yarn start
 - [Ant Design Documentation](https://ant.design/docs/react/introduce)
 - [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
 - [TanStack Query Documentation](https://tanstack.com/query/latest/)
+
+## Environment Variables
+
+The application uses environment variables for configuration. Make sure to set these up before running the application:
+
+### Setup Environment Variables
+
+1. Copy `.env.example` to `.env.local` for local development:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Update the values in `.env.local` according to your environment.
+
+### Available Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Base URL for API requests | `http://localhost:4000` |
+| `NEXT_PUBLIC_API_TIMEOUT` | API request timeout in milliseconds | `30000` |
+| `NEXT_PUBLIC_AUTH_ENABLED` | Enable/disable authentication | `true` |
+| `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` | Enable/disable notification system | `true` |
+
+### Environment Files
+
+- `.env.local`: Local development environment (not committed to git)
+- `.env.development`: Development environment
+- `.env.production`: Production environment
+
+## Notification System
+
+The application includes a comprehensive notification system built with Ant Design. For detailed documentation, see [docs/notification-system.md](docs/notification-system.md).
+
+### Features
+
+- Automatically displays notifications based on API response status codes
+- Supports four notification types: success, info, warning, and error
+- Can be toggled on/off using the `NEXT_PUBLIC_FEATURE_NOTIFICATIONS` environment variable
+- Customizable duration, placement, and content
+
+### Testing Notifications
+
+You can test the notification system by visiting the Proposal page at `/proposal`, which includes a test UI for triggering different types of notification messages.

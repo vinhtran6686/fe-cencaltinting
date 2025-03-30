@@ -8,11 +8,11 @@ const UsersManagementWithQuery: React.FC = () => {
   // Pagination state
   const [page, setPage] = useState<number>(1);
   const [limit] = useState<number>(10);
-  
+
   // Search state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchEnabled, setSearchEnabled] = useState<boolean>(false);
-  
+
   // Get users with React Query
   const {
     data: usersData,
@@ -20,8 +20,12 @@ const UsersManagementWithQuery: React.FC = () => {
     isError: isUsersError,
     error: usersError,
     refetch: refetchUsers
-  } = useUsers(page, limit);
-  
+  } = useUsers(page, limit, {
+    onSuccess: () => {
+      console.log('Users fetched successfully');
+    }
+  });
+
   // Search users with React Query
   const {
     data: searchData,
@@ -29,20 +33,20 @@ const UsersManagementWithQuery: React.FC = () => {
     isError: isSearchError,
     error: searchError
   } = useSearchUsers(searchQuery, page, limit);
-  
+
   // Delete user mutation
   const deleteUser = useDeleteUser();
-  
+
   // Determine which data to display
   const data = searchEnabled && searchQuery ? searchData : usersData;
-  
+
   // Determine loading state
   const isLoading = searchEnabled ? isSearching : isLoadingUsers;
-  
+
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (searchQuery.trim()) {
       setSearchEnabled(true);
       setPage(1);
@@ -50,20 +54,20 @@ const UsersManagementWithQuery: React.FC = () => {
       setSearchEnabled(false);
     }
   };
-  
+
   // Clear search
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchEnabled(false);
     setPage(1);
   };
-  
+
   // Handle user deletion
   const handleDeleteUser = (userId: number) => {
     if (!window.confirm('Are you sure you want to delete this user?')) {
       return;
     }
-    
+
     deleteUser.mutate(userId, {
       onSuccess: () => {
         alert('User deleted successfully!');
@@ -73,18 +77,18 @@ const UsersManagementWithQuery: React.FC = () => {
       }
     });
   };
-  
+
   // Error handling
-  const errorMessage = isUsersError || isSearchError 
+  const errorMessage = isUsersError || isSearchError
     ? (usersError as Error)?.message || (searchError as Error)?.message
     : deleteUser.error
       ? (deleteUser.error as Error).message
       : null;
-  
+
   return (
     <div className="users-management">
       <h1>Users Management</h1>
-      
+
       {/* Search Form */}
       <form onSubmit={handleSearch} className="search-form">
         <input
@@ -94,25 +98,25 @@ const UsersManagementWithQuery: React.FC = () => {
           placeholder="Search users by name or email"
           className="search-input"
         />
-        <button 
-          type="submit" 
-          className="btn-search" 
+        <button
+          type="submit"
+          className="btn-search"
           disabled={isLoading || deleteUser.isPending}
         >
           {isSearching ? 'Searching...' : 'Search'}
         </button>
-        
+
         {searchEnabled && (
-          <button 
-            type="button" 
-            onClick={handleClearSearch} 
+          <button
+            type="button"
+            onClick={handleClearSearch}
             className="btn-clear-search"
           >
             Clear Search
           </button>
         )}
       </form>
-      
+
       {/* Error Message */}
       {errorMessage && (
         <div className="error-message">
@@ -120,17 +124,17 @@ const UsersManagementWithQuery: React.FC = () => {
           <button onClick={() => refetchUsers()}>Retry</button>
         </div>
       )}
-      
+
       {/* Loading State */}
       {isLoading && !data && (
         <div className="loading">Loading users...</div>
       )}
-      
+
       {/* Empty State */}
       {!isLoading && (!data || !data.data || data.data.length === 0) && (
         <div className="empty-state">No users found</div>
       )}
-      
+
       {/* Users Table */}
       {data && data.data && data.data.length > 0 && (
         <>
@@ -152,19 +156,19 @@ const UsersManagementWithQuery: React.FC = () => {
                   <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td className="actions">
-                    <button 
+                    <button
                       onClick={() => window.location.href = `/users/${user.id}`}
                       className="btn-view"
                     >
                       View
                     </button>
-                    <button 
+                    <button
                       onClick={() => window.location.href = `/users/${user.id}/edit`}
                       className="btn-edit"
                     >
                       Edit
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteUser(user.id)}
                       className="btn-delete"
                       disabled={deleteUser.isPending}
@@ -176,10 +180,10 @@ const UsersManagementWithQuery: React.FC = () => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Pagination */}
           <div className="pagination">
-            <button 
+            <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1 || isLoading || deleteUser.isPending}
               className="btn-prev"
@@ -189,11 +193,11 @@ const UsersManagementWithQuery: React.FC = () => {
             <span className="page-info">
               Page {page} of {Math.ceil(data.total / limit) || 1}
             </span>
-            <button 
+            <button
               onClick={() => setPage(p => p + 1)}
               disabled={
-                page >= Math.ceil(data.total / limit) || 
-                isLoading || 
+                page >= Math.ceil(data.total / limit) ||
+                isLoading ||
                 deleteUser.isPending
               }
               className="btn-next"

@@ -10,8 +10,14 @@ import inventoryReducer from '../modules/inventory/redux/inventorySlice'
 import contactReducer from '../modules/contact/redux/contactSlice'
 import transactionsReducer from '../modules/transactions/redux/transactionsSlice'
 import invoiceReducer from '../modules/invoice/redux/invoiceSlice'
+// Global reducers
+import authReducer from './slices/authSlice'
+import appReducer from './slices/appSlice'
 
 const rootReducer = combineReducers({
+  // Global reducers
+  auth: authReducer,
+  app: appReducer,
   // Module reducers
   appointments: appointmentsReducer,
   proposal: proposalReducer,

@@ -1,4 +1,4 @@
-import { apiService } from '../../../services/api';
+import { apiService } from '../../../services/apiService';
 import { Appointment } from '../redux/appointmentTypes';
 
 const API_ENDPOINT = '/appointments';
