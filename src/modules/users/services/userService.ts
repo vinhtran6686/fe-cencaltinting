@@ -1,6 +1,6 @@
-import { apiService } from './apiService';
-import { API_ENDPOINTS } from '../constants/api';
-import { User, UserCreateInput, UserUpdateInput, UserListResponse } from '../models/User';
+import { apiService } from '../../../services/apiService';
+import { API_ENDPOINTS } from '../../../constants/api';
+import { User, UserCreateInput, UserUpdateInput, UserListResponse } from '../../../models/User';
 
 /**
  * Service for handling user-related API requests

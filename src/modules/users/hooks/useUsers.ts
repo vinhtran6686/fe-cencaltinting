@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/UserService';
-import { User, UserUpdateInput, UserCreateInput } from '../models/User';
+import { User, UserUpdateInput, UserCreateInput } from '../../../models/User';
 
 /**
  * Hook for fetching the current logged-in user

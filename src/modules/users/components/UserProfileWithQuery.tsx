@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { User, UserUpdateInput } from '../models/User';
-import { UserService } from '../services/UserService';
-import { getErrorMessage } from '../services/errorService';
+import React, { useState } from 'react';
+import { useCurrentUser, useUpdateUser } from '../hooks/useUsers';
+import { UserUpdateInput } from '../../../models/User';
 
 /**
- * Component to display and edit user profile
+ * Component to display and edit user profile using React Query
  */
-const UserProfile: React.FC = () => {
-  // State for user data
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+const UserProfileWithQuery: React.FC = () => {
+  // Get current user with React Query
+  const { 
+    data: user, 
+    isLoading, 
+    isError, 
+    error,
+    refetch 
+  } = useCurrentUser();
   
   // Form state
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -20,35 +23,19 @@ const UserProfile: React.FC = () => {
     email: ''
   });
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
+  // Update user mutation
+  const updateUser = useUpdateUser();
   
-  /**
-   * Fetch current user profile data
-   */
-  const fetchUserProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const userData = await UserService.getCurrentUser();
-      setUser(userData);
-      
-      // Initialize form data with user data
+  // Initialize form when user data is loaded
+  React.useEffect(() => {
+    if (user) {
       setFormData({
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
       });
-    } catch (err: any) {
-      console.error('Error fetching user profile:', err);
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [user]);
   
   /**
    * Handle input changes in the edit form
@@ -69,32 +56,34 @@ const UserProfile: React.FC = () => {
     
     if (!user) return;
     
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const updatedUser = await UserService.updateUser(user.id, formData);
-      
-      setUser(updatedUser);
-      setIsEditing(false);
-      
-      // Show success message
-      alert('Profile updated successfully!');
-    } catch (err: any) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
+    updateUser.mutate(
+      { id: user.id, data: formData },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          // Show success message
+          alert('Profile updated successfully!');
+        },
+        onError: (err: any) => {
+          alert(`Error updating profile: ${err.message}`);
+        }
+      }
+    );
   };
   
   // Show loading state
-  if (loading && !user) {
+  if (isLoading) {
     return <div className="loading">Loading profile...</div>;
   }
   
   // Show error state
-  if (error && !user) {
-    return <div className="error">{error}</div>;
+  if (isError) {
+    return (
+      <div className="error">
+        <p>Error loading profile: {(error as Error).message}</p>
+        <button onClick={() => refetch()}>Retry</button>
+      </div>
+    );
   }
   
   // Show empty state
@@ -106,7 +95,11 @@ const UserProfile: React.FC = () => {
     <div className="user-profile">
       <h1>User Profile</h1>
       
-      {error && <div className="error-message">{error}</div>}
+      {updateUser.error && (
+        <div className="error-message">
+          Error: {(updateUser.error as Error).message}
+        </div>
+      )}
       
       {isEditing ? (
         <form onSubmit={handleSubmit} className="profile-form">
@@ -151,16 +144,16 @@ const UserProfile: React.FC = () => {
               type="button" 
               onClick={() => setIsEditing(false)}
               className="btn-cancel"
-              disabled={loading}
+              disabled={updateUser.isPending}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn-save"
-              disabled={loading}
+              disabled={updateUser.isPending}
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              {updateUser.isPending ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>
@@ -194,4 +187,4 @@ const UserProfile: React.FC = () => {
   );
 };
 
-export default UserProfile; 
+export default UserProfileWithQuery; 

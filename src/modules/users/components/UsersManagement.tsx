@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User } from '../models/User';
-import { UserService } from '../services/UserService';
-import { getErrorMessage } from '../services/errorService';
+import { User } from '../../../models/User';
+import { UserService } from '../services/userService';
+import { getErrorMessage } from '../../../services/errorService';
 
 /**
  * Component for managing users (list, search, delete)
