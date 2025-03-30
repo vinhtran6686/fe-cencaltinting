@@ -1,18 +1,18 @@
 import { combineReducers } from '@reduxjs/toolkit'
 
-// Import reducers for each feature
-import appointmentsReducer from '../features/appointments/appointmentsSlice'
+// Import reducers from modules
+import appointmentsReducer from '../modules/appointments'
 // Blank reducers for other features - sẽ được cập nhật sau
-import proposalReducer from '../features/proposal/proposalSlice'
-import servicesReducer from '../features/services/servicesSlice'
-import vehicleRulesReducer from '../features/vehicleRules/vehicleRulesSlice'
-import inventoryReducer from '../features/inventory/inventorySlice'
-import contactReducer from '../features/contact/contactSlice'
-import transactionsReducer from '../features/transactions/transactionsSlice'
-import invoiceReducer from '../features/invoice/invoiceSlice'
+import proposalReducer from '../modules/proposal/redux/proposalSlice'
+import servicesReducer from '../modules/services/redux/servicesSlice'
+import vehicleRulesReducer from '../modules/vehicleRules/redux/vehicleRulesSlice'
+import inventoryReducer from '../modules/inventory/redux/inventorySlice'
+import contactReducer from '../modules/contact/redux/contactSlice'
+import transactionsReducer from '../modules/transactions/redux/transactionsSlice'
+import invoiceReducer from '../modules/invoice/redux/invoiceSlice'
 
 const rootReducer = combineReducers({
-  // Feature reducers
+  // Module reducers
   appointments: appointmentsReducer,
   proposal: proposalReducer,
   services: servicesReducer,

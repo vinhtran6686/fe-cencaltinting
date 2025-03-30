@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../store';
+import { RootState } from '../../../store';
 import { Appointment } from './appointmentTypes';
 
 // Basic selectors

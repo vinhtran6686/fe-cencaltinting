@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { Typography, Card, Table, Button, Space, Tag } from 'antd'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { appointmentsSelectors } from '../../features/appointments'
-import { fetchAppointments } from '../../features/appointments/appointmentsThunks'
+import { appointments } from '../../modules/appointments'
+import { fetchAppointments } from '../../modules/appointments/redux/appointmentsThunks'
 
 const { Title } = Typography
 
@@ -15,9 +15,9 @@ const statusColors = {
 
 const AppointmentsPage: React.FC = () => {
   const dispatch = useAppDispatch()
-  const appointments = useAppSelector(appointmentsSelectors.selectAllAppointments)
-  const status = useAppSelector(appointmentsSelectors.selectAppointmentStatus)
-  const error = useAppSelector(appointmentsSelectors.selectAppointmentError)
+  const appointmentsList = useAppSelector(appointments.selectors.selectAllAppointments)
+  const status = useAppSelector(appointments.selectors.selectAppointmentStatus)
+  const error = useAppSelector(appointments.selectors.selectAppointmentError)
 
   useEffect(() => {
     if (status === 'idle') {
@@ -87,7 +87,7 @@ const AppointmentsPage: React.FC = () => {
         
         <Card>
           <Table 
-            dataSource={appointments.map((app: any) => ({ ...app, key: app.id }))} 
+            dataSource={appointmentsList.map((app: any) => ({ ...app, key: app.id }))} 
             columns={columns} 
             pagination={{ pageSize: 10 }}
             rowKey="id"
