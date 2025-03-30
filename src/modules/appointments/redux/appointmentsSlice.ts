@@ -136,5 +136,3 @@ export const { selectAppointment, setFilter, clearFilters } = appointmentsSlice.
 
 // Export reducer
 export default appointmentsSlice.reducer;
-
-// MARK: Vị trí để cập nhật thêm reducers khi có thông tin chi tiết về Appointments 

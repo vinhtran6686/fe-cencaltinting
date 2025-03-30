@@ -78,5 +78,3 @@ export const deleteAppointment = createAsyncThunk(
     }
   }
 );
-
-// MARK: Vị trí để cập nhật thêm thunks khi có thông tin chi tiết về Appointments 

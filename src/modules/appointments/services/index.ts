@@ -1,39 +1,31 @@
-// This file will export all API services related to appointments
-// Ví dụ:
-
-import axios from 'axios';
+import { apiService } from '../../../services/api';
 import { Appointment } from '../redux/appointmentTypes';
 
-const API_URL = '/api/appointments';
+const API_ENDPOINT = '/appointments';
 
 export const appointmentsService = {
   getAll: async (): Promise<Appointment[]> => {
-    // TODO: Implement real API call
-    const response = await axios.get(API_URL);
+    const response = await apiService.get<Appointment[]>(API_ENDPOINT);
     return response.data;
   },
   
   getById: async (id: string): Promise<Appointment> => {
-    // TODO: Implement real API call
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await apiService.get<Appointment>(`${API_ENDPOINT}/${id}`);
     return response.data;
   },
   
   create: async (appointment: Omit<Appointment, 'id'>): Promise<Appointment> => {
-    // TODO: Implement real API call
-    const response = await axios.post(API_URL, appointment);
+    const response = await apiService.post<Appointment>(API_ENDPOINT, appointment);
     return response.data;
   },
   
   update: async (id: string, changes: Partial<Appointment>): Promise<Appointment> => {
-    // TODO: Implement real API call
-    const response = await axios.patch(`${API_URL}/${id}`, changes);
+    const response = await apiService.patch<Appointment>(`${API_ENDPOINT}/${id}`, changes);
     return response.data;
   },
   
   delete: async (id: string): Promise<void> => {
-    // TODO: Implement real API call
-    await axios.delete(`${API_URL}/${id}`);
+    await apiService.delete(`${API_ENDPOINT}/${id}`);
   }
 };
 

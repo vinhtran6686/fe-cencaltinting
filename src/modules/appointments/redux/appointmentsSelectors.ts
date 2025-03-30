@@ -65,5 +65,3 @@ export const selectAppointmentsByDate = createSelector(
     return byDate;
   }
 );
-
-// MARK: Vị trí để cập nhật thêm selectors khi có thông tin chi tiết về Appointments 

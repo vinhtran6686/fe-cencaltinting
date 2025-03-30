@@ -32,5 +32,3 @@ export interface AppointmentState {
     toDate: string | null;
   };
 }
-
-// MARK: Vị trí để cập nhật thêm types khi có thông tin chi tiết về Appointments 
