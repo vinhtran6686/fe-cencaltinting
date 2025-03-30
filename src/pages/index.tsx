@@ -2,106 +2,56 @@ import React from 'react'
 import { Typography, Card, Row, Col, Button, Space, Alert, Divider, Tag, Switch, Radio } from 'antd'
 import Link from 'next/link'
 import StyledCard from '../components/StyledCard'
+import { useRouter } from 'next/router'
 
 const { Title, Paragraph } = Typography
 
+const featureRoutes = [
+  { name: 'Proposal', path: '/proposal', description: 'Manage customer proposals' },
+  { name: 'Services', path: '/services', description: 'Configure and manage offered services' },
+  { name: 'Vehicle Rules', path: '/vehicleRules', description: 'Setup rules for different vehicle types' },
+  { name: 'Appointments', path: '/appointments', description: 'Manage customer appointments and scheduling' },
+  { name: 'Inventory', path: '/inventory', description: 'Track inventory and supplies' },
+  { name: 'Contact', path: '/contact', description: 'Customer contact management' },
+  { name: 'Transactions', path: '/transactions', description: 'Track financial transactions' },
+  { name: 'Invoice', path: '/invoice', description: 'Generate and manage invoices' },
+];
+
 const HomePage: React.FC = () => {
+  const router = useRouter();
+  
+  // Redirect to appointments (default page)
+  // React.useEffect(() => {
+  //   router.push('/appointments');
+  // }, [router]);
+  
   return (
     <div style={{ padding: '24px' }}>
       <Typography>
         <Title>Welcome to CENCALTINTING</Title>
         <Paragraph>
-          This is the home page of the CENCALTINTING application.
+          This application helps you manage your business operations efficiently.
         </Paragraph>
 
-        <Divider>Theme Demo</Divider>
+        <Divider>Available Features</Divider>
         
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <Card title="Color Theme" bordered={true}>
-                <Space wrap>
-                  <Button type="primary">Primary Button</Button>
-                  <Button type="default">Default Button</Button>
-                  <Button type="dashed">Dashed Button</Button>
-                  <Button type="text">Text Button</Button>
-                  <Button type="link">Link Button</Button>
-                </Space>
-                
-                <Divider />
-                
-                <Space direction="vertical">
-                  <Alert message="Success Message" type="success" showIcon />
-                  <Alert message="Info Message" type="info" showIcon />
-                  <Alert message="Warning Message" type="warning" showIcon />
-                  <Alert message="Error Message" type="error" showIcon />
-                </Space>
+        <Row gutter={[16, 16]}>
+          {featureRoutes.map((feature) => (
+            <Col xs={24} sm={12} md={8} key={feature.path}>
+              <Card 
+                title={feature.name}
+                style={{ height: '100%' }}
+                actions={[
+                  <Link href={feature.path} key="enter">
+                    <Button type="primary">Enter</Button>
+                  </Link>
+                ]}
+              >
+                <Paragraph>{feature.description}</Paragraph>
               </Card>
             </Col>
-          </Row>
-          
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12}>
-              <Card title="Components" bordered={true}>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Space>
-                    <Switch defaultChecked />
-                    <span>Toggle</span>
-                  </Space>
-                  
-                  <Space>
-                    <Radio.Group defaultValue="a">
-                      <Radio.Button value="a">Option A</Radio.Button>
-                      <Radio.Button value="b">Option B</Radio.Button>
-                      <Radio.Button value="c">Option C</Radio.Button>
-                    </Radio.Group>
-                  </Space>
-                  
-                  <Space>
-                    <Tag color="success">Success</Tag>
-                    <Tag color="processing">Processing</Tag>
-                    <Tag color="error">Error</Tag>
-                    <Tag color="warning">Warning</Tag>
-                    <Tag color="default">Default</Tag>
-                  </Space>
-                </Space>
-              </Card>
-            </Col>
-            
-            <Col xs={24} sm={12}>
-              <Card title="Dashboard" bordered={true}>
-                <Paragraph>
-                  View important metrics and analytics for your business.
-                </Paragraph>
-                <Link href="/dashboard">
-                  <Button type="primary">Go to Dashboard</Button>
-                </Link>
-              </Card>
-            </Col>
-          </Row>
-          
-          <Divider>Custom Styled Components</Divider>
-          
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12}>
-              <StyledCard title="Regular Styled Card">
-                <Paragraph>
-                  This is a custom styled card component that uses the theme tokens.
-                  Hover over this card to see the hover effect.
-                </Paragraph>
-              </StyledCard>
-            </Col>
-            
-            <Col xs={24} sm={12}>
-              <StyledCard title="Dark Header Card" isDark>
-                <Paragraph>
-                  This is a custom styled card with a dark header that uses the primary color.
-                  The styling is controlled by the theme configuration.
-                </Paragraph>
-              </StyledCard>
-            </Col>
-          </Row>
-        </Space>
+          ))}
+        </Row>
       </Typography>
     </div>
   )
