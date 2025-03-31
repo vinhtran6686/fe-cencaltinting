@@ -1,28 +1,40 @@
 import { theme } from 'antd';
 import type { ThemeConfig } from 'antd';
+import { colors, fontSizes, borderRadius, fontFamily } from './tokens';
 
 const themeConfig: ThemeConfig = {
   token: {
-    colorPrimary: '#1890ff',
-    colorSuccess: '#52c41a',
-    colorWarning: '#faad14',
-    colorError: '#ff4d4f',
-    colorTextBase: 'rgba(0, 0, 0, 0.85)',
-    colorBgBase: '#ffffff',
-    borderRadius: 4,
-    fontSize: 14,
-    fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+    colorPrimary: colors.primary,
+    colorSuccess: colors.success,
+    colorWarning: colors.warning,
+    colorError: colors.error,
+    colorTextBase: colors.textPrimary,
+    colorBgBase: colors.bgPrimary,
+    borderRadius: parseInt(borderRadius.md),
+    fontSize: parseInt(fontSizes.sm),
+    fontFamily: fontFamily,
   },
   components: {
     Button: {
-      colorPrimary: '#1890ff',
+      colorPrimary: colors.primary,
       algorithm: true,
     },
     Card: {
-      colorBorderSecondary: '#f0f0f0',
+      colorBorderSecondary: colors.borderColor,
     },
+    Layout: {
+      headerBg: colors.headerBackground,
+      siderBg: colors.sidebarBackground,
+    },
+    Menu: {
+      darkItemBg: 'transparent',
+      darkItemColor: colors.menuText,
+      darkItemHoverBg: 'rgba(255, 255, 255, 0.1)',
+      darkItemSelectedBg: colors.menuActiveBg,
+      darkItemSelectedColor: colors.menuActive,
+    }
   },
-  algorithm: theme.defaultAlgorithm,
+  algorithm: theme.darkAlgorithm,
 };
 
 export default themeConfig; 

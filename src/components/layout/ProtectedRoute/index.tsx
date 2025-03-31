@@ -14,8 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, loading } = useAppSelector(state => state.auth);
 
   useEffect(() => {
-    // For development, load dummy user
-    // In production, this would check for a valid token or redirect to login
+    // load dummy user
     dispatch(loadDummyUser());
 
     // Example of future implementation:
@@ -24,8 +23,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // }
   }, [dispatch]);
 
-  // For now, we'll always render children since we're using dummy data
-  // In the future, this would show a loading state or redirect
   return <>{children}</>;
 };
 

@@ -9,6 +9,8 @@ import '../styles/globals.css'
 import AppLayout from '../components/layout/AppLayout'
 import ProtectedRoute from '../components/layout/ProtectedRoute'
 import NotificationProvider from '../components/providers/NotificationProvider'
+import { Global } from '@emotion/react'
+import globalStyles from '../theme/globalStyles'
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -24,6 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
+        <Global styles={globalStyles} />
         <ConfigProvider theme={themeConfig}>
           <AntdApp>
             <NotificationProvider>

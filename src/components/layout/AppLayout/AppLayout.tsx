@@ -2,11 +2,8 @@ import React from 'react'
 import { Layout } from 'antd'
 import Header from '../Header'
 import Sidebar from '../Sidebar'
-import Footer from '../Footer'
 import { useAppDispatch, useAppSelector } from '../../../store'
-import { toggleSidebar } from '../../../store/slices/appSlice'
-
-const { Content } = Layout
+import { StyledLayout, MainLayout, StyledContent } from './AppLayout.styles'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -16,21 +13,18 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const dispatch = useAppDispatch()
   const { sidebarCollapsed } = useAppSelector(state => state.app)
 
-  const handleToggleSidebar = () => {
-    dispatch(toggleSidebar())
-  }
+  const sidebarWidth = sidebarCollapsed ? 80 : 200;
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <StyledLayout>
       <Sidebar collapsed={sidebarCollapsed} />
-      <Layout>
+      <MainLayout sidebarWidth={sidebarWidth}>
         <Header />
-        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', overflow: 'auto' }}>
+        <StyledContent>
           {children}
-        </Content>
-        <Footer />
-      </Layout>
-    </Layout>
+        </StyledContent>
+      </MainLayout>
+    </StyledLayout>
   )
 }
 
