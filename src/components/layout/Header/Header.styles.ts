@@ -8,7 +8,7 @@ export const StyledHeader = styled(AntHeader)`
   display: flex;
   align-items: center;
   padding: 0 ${spacing.md};
-  background-color: transparent;
+  background-color: ${colors.headerBackground};
   box-shadow: none;
   height: 60px;
   line-height: 60px;

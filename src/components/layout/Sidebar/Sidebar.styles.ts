@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Layout, Button } from 'antd';
+import { Layout, Button, Avatar } from 'antd';
 import { colors, spacing, fontSizes } from '../../../theme/tokens';
 
 const { Sider } = Layout;
@@ -68,7 +68,7 @@ export const LogoContainer = styled.div<{ collapsed: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${props => props.collapsed ? `${spacing.sm} ${spacing.md}` : `${spacing.sm} ${spacing.md}`};
+  padding: ${props => props.collapsed ? `${spacing.sm} ${spacing.md}` : `${parseInt(spacing.xs) * 3}px ${spacing.md}`};
   cursor: pointer;
   border-bottom: 1px solid ${colors.borderColor};
 `;
@@ -100,44 +100,94 @@ export const CustomIcon = styled.div<{ iconName: string }>`
 `;
 
 // Collapse toggle button
-export const CollapseButton = styled.div<{ collapsed: boolean }>`
+export const StyledButton = styled(Button)` 
   display: flex;
-  justify-content: ${props => props.collapsed ? 'center' : 'flex-end'};
-  padding: ${spacing.sm};
-  color: rgba(255, 255, 255, 0.65);
-  cursor: pointer;
-  transition: color 0.3s ease;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   
-  &:hover {
-    color: white;
+  &.ant-btn {
+    color: rgba(255, 255, 255, 0.65);
+    background-color: transparent;
+    border: none;
+    
+    &:hover {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
   }
 `;
 
+export const ButtonIcon = styled.div<{ collapsed?: boolean }>`
+  width: 20px;
+  height: 20px;
+  background-image: url('/images/icons/sidebar/collapse.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: brightness(0) saturate(100%) invert(78%) sepia(8%) saturate(188%) hue-rotate(191deg) brightness(93%) contrast(87%);
+  transform: ${props => props.collapsed ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+  }
+`;
+
+export const ButtonContainer = styled.div<{ collapsed: boolean }>`
+  display: flex;
+  justify-content: ${props => props.collapsed ? 'center' : 'flex-end'};
+  position: absolute;
+  top: 0;
+  right: ${props => props.collapsed ? parseInt(spacing.xs) * 3 : spacing.sm};
+  transform: translateY(-50%);
+`;
+
 export const UserProfileContainer = styled.div<{ collapsed: boolean }>`
-  padding: ${props => props.collapsed ? `${spacing.sm} ${spacing.xs}` : spacing.md};
+  height: 64px; 
+  padding: 0 ${spacing.md};
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  align-items: center;
-  justify-content: ${props => props.collapsed ? 'center' : 'flex-start'};
+  align-items: center; 
   background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   bottom: 0;
   width: 100%;
 `;
 
-export const UserInfo = styled.div`
-  margin-left: ${spacing.md};
+
+export const UserInfoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
+  gap: ${spacing.sm};
+  border-radius: ${spacing.md};
+  background-color: ${colors.borderColor};
 `;
 
-export const UserName = styled.div`
-  color: ${colors.textPrimary};
-  font-weight: 500;
+export const StyledAvatar = styled(Avatar)`
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+`;
+
+export const UserInfo = styled.div` 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-export const UserRole = styled.div`
-  color: rgba(255, 255, 255, 0.65);
-  font-size: ${fontSizes.xs};
-`; 
+export const UserName = styled.div`
+  color: ${colors.textPrimary};
+  font-weight: 500;
+  font-size: ${fontSizes.sm};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: ${parseInt(spacing.xs) * 3}px;
+`;
+ 

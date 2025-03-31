@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         <BackButton 
           icon={<ArrowLeftOutlined />}
           onClick={handleBack}
-          type="text"
+          type="default"
         />
       )}
       <HeaderTitle level={4} withoutBackButton={!showBackButton}>

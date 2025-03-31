@@ -1,8 +1,8 @@
 import React from 'react'
-import { Menu, Avatar, Button } from 'antd'
+import { Menu } from 'antd'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { UserOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { UserOutlined } from '@ant-design/icons'
 import { useAppSelector, useAppDispatch } from '../../../store'
 import { dummyUser } from '../../../store/slices/authSlice'
 import { toggleSidebar } from '../../../store/slices/appSlice'
@@ -13,9 +13,12 @@ import {
   UserProfileContainer,
   UserInfo,
   UserName,
-  UserRole,
   CustomIcon,
-  CollapseButton
+  StyledButton,
+  ButtonIcon,
+  ButtonContainer,
+  UserInfoContainer,
+  StyledAvatar
 } from './Sidebar.styles'
 
 interface SidebarProps {
@@ -26,14 +29,14 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
   const router = useRouter()
   const user = useAppSelector(state => state.auth.user) || dummyUser
   const dispatch = useAppDispatch()
-  
+
   // Determine the selected key based on the current path
   const selectedKey = router.pathname.split('/')[1] || 'dashboard'
-  
+
   const handleToggleCollapse = () => {
     dispatch(toggleSidebar())
   }
-  
+
   const menuItems = [
     {
       key: 'proposal',
@@ -49,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       key: 'vehicleRules',
       icon: <CustomIcon iconName="vehicles" className="custom-icon" />,
       label: <span>Vehicle Rules</span>,
-    },    
+    },
     {
       key: 'appointments',
       icon: <CustomIcon iconName="appointments" className="custom-icon" />,
@@ -76,11 +79,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       label: <span>Invoices</span>,
     }
   ]
-  
+
   return (
-    <StyledSider 
-      theme="dark" 
-      collapsible 
+    <StyledSider
+      theme="dark"
+      collapsible
       collapsed={collapsed}
       trigger={null}
       width={240}
@@ -90,21 +93,21 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       <Link href="/">
         <LogoContainer collapsed={collapsed}>
           {collapsed ? (
-            <img 
-              src="/images/logo-small.png" 
-              alt="CenCal Tinting Logo" 
-              style={{ maxWidth: '100%', maxHeight: '100%' }} 
+            <img
+              src="/images/logo-small.png"
+              alt="CenCal Tinting Logo"
+              style={{ maxWidth: '100%', maxHeight: '100%' }}
             />
           ) : (
-            <img 
-              src="/images/logo.png" 
-              alt="CenCal Tinting Logo" 
-              style={{ maxWidth: '100%', maxHeight: '100%' }} 
+            <img
+              src="/images/logo.png"
+              alt="CenCal Tinting Logo"
+              style={{ maxWidth: '100%', maxHeight: '100%' }}
             />
           )}
         </LogoContainer>
       </Link>
-      
+
       <MenuWrapper>
         <Menu
           theme="dark"
@@ -115,22 +118,24 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
         />
       </MenuWrapper>
 
-      <CollapseButton 
-        onClick={handleToggleCollapse}
-        collapsed={collapsed}
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </CollapseButton>
-      
+
       <UserProfileContainer collapsed={collapsed}>
-        <Avatar src={user.avatar} icon={<UserOutlined />} size={collapsed ? 'default' : 'large'} />
-        
-        {!collapsed && (
-          <UserInfo>
-            <UserName>{user.name}</UserName>
-            <UserRole>{user.role}</UserRole>
-          </UserInfo>
-        )}
+        <ButtonContainer collapsed={collapsed}>
+          <StyledButton
+            onClick={handleToggleCollapse}
+            type="text"
+          >
+            <ButtonIcon collapsed={collapsed} />
+          </StyledButton>
+        </ButtonContainer>
+        <UserInfoContainer>
+          <StyledAvatar src={user.avatar} icon={<UserOutlined />} size={28} />
+          {!collapsed && (
+            <UserInfo>
+              <UserName>{user.name}</UserName>
+            </UserInfo>
+          )}
+        </UserInfoContainer>
       </UserProfileContainer>
     </StyledSider>
   )

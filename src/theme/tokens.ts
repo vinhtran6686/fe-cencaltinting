@@ -1,6 +1,3 @@
-// Design tokens for CENCALTINTING
-// These tokens can be referenced in themeConfig.ts and component styles
-
 // Color tokens
 export const colors = {
   primary: '#1890ff',
@@ -16,6 +13,7 @@ export const colors = {
   borderColor: '#2F323E',
   sidebarBackground: '#0F0F0F',
   headerBackground: '#0F0F0F', 
+  
   // Active menu colors
   menuActive: '#2E7FF1',
   menuActiveBg: '#2E7FF11A',
@@ -29,6 +27,7 @@ export const spacing = {
   md: '16px',
   lg: '24px',
   xl: '32px',
+  xxl: '40px',
 }
 
 // Font size tokens
