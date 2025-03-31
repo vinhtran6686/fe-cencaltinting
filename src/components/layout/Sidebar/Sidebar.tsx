@@ -84,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       collapsed={collapsed}
       trigger={null}
       width={240}
-      collapsedWidth={80}
+      collapsedWidth={60}
       style={{ zIndex: 1000 }}
     >
       <Link href="/">
@@ -92,8 +92,8 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
           {collapsed ? (
             <img 
               src="/images/logo-small.png" 
-              alt="CT" 
-              style={{ maxWidth: '40px', maxHeight: '40px' }} 
+              alt="CenCal Tinting Logo" 
+              style={{ maxWidth: '100%', maxHeight: '100%' }} 
             />
           ) : (
             <img 

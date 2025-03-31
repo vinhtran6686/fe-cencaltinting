@@ -1,7 +1,8 @@
 import React from 'react'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { StyledHeader, HeaderTitle, BackButton } from './Header.styles'
+import { StyledHeader } from './Header.styles'
+import { HeaderTitle, BackButton } from '../../common'
 
 interface HeaderProps {
   title?: string
@@ -16,16 +17,18 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
   const pageTitle = title || getPageTitle(router.pathname)
 
-  const showBackButton = router.pathname !== '/' && !router.pathname.match(/^\/dashboard\/?$/)
+  const showBackButton = router.pathname !== '/' && !router.pathname.match(/^\/dashboard\/?$/) 
 
   return (
     <StyledHeader>
       {showBackButton && (
-        <BackButton onClick={handleBack}>
-          <ArrowLeftOutlined />
-        </BackButton>
+        <BackButton 
+          icon={<ArrowLeftOutlined />}
+          onClick={handleBack}
+          type="text"
+        />
       )}
-      <HeaderTitle withoutBackButton={!showBackButton}>
+      <HeaderTitle level={4} withoutBackButton={!showBackButton}>
         {pageTitle}
       </HeaderTitle>
     </StyledHeader>

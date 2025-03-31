@@ -8,10 +8,11 @@ export const StyledLayout = styled(Layout)`
   min-height: 100vh;
 `;
 
-export const MainLayout = styled(Layout)<{ sidebarWidth: number }>`
+export const MainLayout = styled(Layout) <{ sidebarWidth: number }>`
   margin-left: ${props => props.sidebarWidth}px;
   transition: margin-left 0.2s;
-  background: linear-gradient(to bottom, #183053 0px, #183053 200px, #0F0F0F 200px, #0F0F0F 100%);
+  background: rgb(24,48,83);
+  background: linear-gradient(180deg, rgba(24,48,83,1) 0%, rgba(15,15,15,1) 30%);
 `;
 
 export const StyledContent = styled(Content)`

@@ -13,13 +13,13 @@ export const colors = {
   textDisabled: 'rgba(0, 0, 0, 0.25)',
   bgPrimary: '#0F0F0F',
   bgSecondary: '#f5f5f5',
-  borderColor: '#f0f0f0',
+  borderColor: '#2F323E',
   sidebarBackground: '#0F0F0F',
   headerBackground: '#0F0F0F', 
   // Active menu colors
   menuActive: '#2E7FF1',
   menuActiveBg: '#2E7FF11A',
-  menuText: '#C6C8D2',
+  menuText: '#C6C8D2', 
 }
 
 // Spacing tokens

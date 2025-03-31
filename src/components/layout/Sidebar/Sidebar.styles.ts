@@ -11,7 +11,7 @@ export const StyledSider = styled(Sider)`
   display: flex;
   flex-direction: column;
   z-index: 10;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid ${colors.borderColor};
  
   .ant-menu {
     display: flex;
@@ -64,13 +64,13 @@ export const StyledSider = styled(Sider)`
 `;
 
 export const LogoContainer = styled.div<{ collapsed: boolean }>`
-  height: 80px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${spacing.md};
+  padding: ${props => props.collapsed ? `${spacing.sm} ${spacing.md}` : `${spacing.sm} ${spacing.md}`};
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid ${colors.borderColor};
 `;
 
 export const MenuWrapper = styled.div`
@@ -130,7 +130,7 @@ export const UserInfo = styled.div`
 `;
 
 export const UserName = styled.div`
-  color: ${colors.bgPrimary};
+  color: ${colors.textPrimary};
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;

@@ -17,7 +17,11 @@ const themeConfig: ThemeConfig = {
   components: {
     Button: {
       colorPrimary: colors.primary,
+      colorPrimaryHover: colors.primary,
       algorithm: true,
+      colorBgContainer: 'transparent',
+      colorText: '#ffffff',
+      paddingInline: 12,
     },
     Card: {
       colorBorderSecondary: colors.borderColor,
@@ -32,6 +36,14 @@ const themeConfig: ThemeConfig = {
       darkItemHoverBg: 'rgba(255, 255, 255, 0.1)',
       darkItemSelectedBg: colors.menuActiveBg,
       darkItemSelectedColor: colors.menuActive,
+    },
+    Typography: {
+      colorTextHeading: '#ffffff',
+      colorText: '#ffffff',
+      colorTextDescription: 'rgba(255, 255, 255, 0.65)',
+      fontWeightStrong: 600,
+      titleMarginBottom: 0,
+      titleMarginTop: 0,
     }
   },
   algorithm: theme.darkAlgorithm,

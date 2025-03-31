@@ -13,7 +13,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const dispatch = useAppDispatch()
   const { sidebarCollapsed } = useAppSelector(state => state.app)
 
-  const sidebarWidth = sidebarCollapsed ? 80 : 200;
+  const sidebarWidth = sidebarCollapsed ? 60 : 240;
 
   return (
     <StyledLayout>
