@@ -4,15 +4,10 @@ import styled from '@emotion/styled';
 import { ModalProps as AntModalProps } from 'antd/es/modal';
 import { colors, spacing, shadows } from '../../../theme/tokens';
 
-/**
- * Extended Modal Props that include our custom properties
- */
 export interface ModalProps extends AntModalProps {
-  /** Size variant of modal */
   size?: 'small' | 'medium' | 'large';
 }
 
-// Define width based on size
 const getModalWidth = (size?: 'small' | 'medium' | 'large') => {
   switch (size) {
     case 'small':
@@ -26,9 +21,6 @@ const getModalWidth = (size?: 'small' | 'medium' | 'large') => {
   }
 };
 
-/**
- * Base styled modal component that extends Ant Design's Modal
- */
 const StyledModal = styled(AntModal)<ModalProps>`
   .ant-modal-content {
     border-radius: ${spacing.md};
@@ -51,16 +43,12 @@ const StyledModal = styled(AntModal)<ModalProps>`
   }
 `;
 
-/**
- * Modal component with additional props
- */
 export const Modal: React.FC<ModalProps> = ({ 
   size = 'medium',
   width,
   children,
   ...props 
 }) => {
-  // Calculate width based on size if no explicit width provided
   const computedWidth = width || getModalWidth(size);
   
   return (

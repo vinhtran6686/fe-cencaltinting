@@ -5,37 +5,13 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Button } from '../Button';
 
 export interface CustomDrawerProps extends Omit<React.ComponentProps<typeof AntDrawer>, 'onClose'> {
-  /**
-   * Title of the drawer
-   */
   title?: React.ReactNode;
-  /**
-   * Drawer content
-   */
   children?: React.ReactNode;
-  /**
-   * Whether the drawer is visible
-   */
   open?: boolean;
-  /**
-   * Called when drawer is closed
-   */
   onClose?: () => void;
-  /**
-   * Called when Save button is clicked
-   */
   onSave?: () => void;
-  /**
-   * Cancel button text
-   */
   cancelText?: string;
-  /**
-   * Save button text
-   */
   saveText?: string;
-  /**
-   * Width of the drawer
-   */
   width?: number | string;
 }
 
@@ -101,9 +77,6 @@ const CloseButton = styled.button`
   }
 `;
 
-/**
- * CustomDrawer component extends Ant Design's Drawer with project-specific styling and functionality
- */
 export const CustomDrawer: React.FC<CustomDrawerProps> = ({
   title,
   children,

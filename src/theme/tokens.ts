@@ -11,13 +11,18 @@ export const colors = {
   bgPrimary: '#0F0F0F',
   bgSecondary: '#f5f5f5',
   borderColor: '#2F323E',
+  borderLight: '#f0f0f0',
   sidebarBackground: '#0F0F0F',
   headerBackground: '#0F0F0F', 
   
   // Active menu colors
   menuActive: '#2E7FF1',
   menuActiveBg: '#2E7FF11A',
-  menuText: '#C6C8D2', 
+  menuText: '#C6C8D2',
+  
+  // Background states
+  backgroundLight: '#f9f9f9',
+  backgroundHover: '#f5f5f5',
 }
 
 // Spacing tokens
