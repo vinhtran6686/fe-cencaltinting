@@ -8,7 +8,9 @@ export const StyledLayout = styled(Layout)`
   min-height: 100vh;
 `;
 
-export const MainLayout = styled(Layout) <{ sidebarWidth: number }>`
+export const MainLayout = styled(Layout, {
+  shouldForwardProp: (prop) => prop !== 'sidebarWidth'
+})<{ sidebarWidth: number }>`
   margin-left: ${props => props.sidebarWidth}px;
   transition: margin-left 0.2s;
   background: rgb(24,48,83);

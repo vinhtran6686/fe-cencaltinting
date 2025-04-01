@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { 
   Typography, 
   Card, 
-  Button, 
   Divider, 
   Row, 
   Col, 
@@ -18,13 +17,15 @@ import {
   LockOutlined, 
   ExclamationCircleOutlined,
   BellOutlined,
-  EditOutlined
+  EditOutlined,
+  MenuOutlined
 } from '@ant-design/icons'
 import { apiService } from '../../services/apiService'
 import { useHandleApiSuccess } from '../../utils/apiResponseHandler'
 import { useNotification } from '../../components/providers/NotificationProvider'
 import { API_ENDPOINTS } from '../../constants/api'
 import { AxiosRequestConfig } from 'axios'
+import { Button, CustomDrawer } from '../../components/common'
  
 interface ExtendedRequestConfig extends AxiosRequestConfig {
   showSuccessNotification?: boolean;
@@ -41,6 +42,8 @@ const ProposalPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customTitle, setCustomTitle] = useState('Custom Notification');
   const [customMessage, setCustomMessage] = useState('This is a custom notification message');
+   
+  const [drawerOpen, setDrawerOpen] = useState(false);
    
   const handleCallApi = async (endpoint: string, title: string, color: string, statusCode: number) => {
     try { 
@@ -158,6 +161,34 @@ const ProposalPage: React.FC = () => {
     <div style={{ padding: '24px' }}>
       <Title level={2}><BellOutlined /> Notification Test Page</Title>
       
+      <div style={{ marginBottom: '16px' }}>
+        <Button 
+          icon={<MenuOutlined />} 
+          variant="primary" 
+          onClick={() => setDrawerOpen(true)}
+        >
+          Open Custom Drawer
+        </Button>
+      </div>
+      
+      <CustomDrawer
+        title="Custom Drawer Example"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onSave={() => {
+          notification.showSuccess('Drawer Action', 'Changes saved successfully!');
+          setDrawerOpen(false);
+        }}
+      >
+        <Typography.Paragraph style={{ color: 'white' }}>
+          This is a custom drawer that follows project guidelines.
+        </Typography.Paragraph>
+        <Typography.Paragraph style={{ color: 'white' }}>
+          It has a dark background (#0F0F0F with opacity), is positioned on the left side,
+          has Cancel and Save buttons, and can be closed by clicking outside or using the close icon.
+        </Typography.Paragraph>
+      </CustomDrawer>
+      
       <Card>
         <Paragraph>
           This page allows you to test different types of notifications triggered by API responses.
@@ -191,8 +222,7 @@ const ProposalPage: React.FC = () => {
                   Endpoint: {item.endpoint}
                 </Paragraph>
                 <Button 
-                  type="primary"
-                  danger={item.color === 'error'}
+                  variant={item.color === 'error' ? 'danger' : 'primary'}
                   onClick={() => handleCallApi(item.endpoint, item.title, item.color, item.statusCode)}
                   style={{ marginTop: '8px' }}
                   block
@@ -218,9 +248,9 @@ const ProposalPage: React.FC = () => {
                 Uses API_ENDPOINTS.NOTIFICATIONS.SUCCESS
               </Paragraph>
               <Button 
-                type="primary"
+                variant="primary"
                 onClick={() => setIsModalOpen(true)}
-                style={{ marginTop: '8px', background: '#1677ff' }}
+                style={{ marginTop: '8px' }}
                 block
               >
                 Custom
@@ -243,9 +273,9 @@ const ProposalPage: React.FC = () => {
                 Sends multiple identical requests rapidly
               </Paragraph>
               <Button 
-                type="primary"
+                variant="primary"
                 onClick={testAbortController}
-                style={{ marginTop: '8px', background: '#722ed1' }}
+                style={{ marginTop: '8px' }}
                 block
               >
                 Spam Test
@@ -274,6 +304,14 @@ const ProposalPage: React.FC = () => {
         open={isModalOpen}
         onOk={handleCustomApiCall}
         onCancel={() => setIsModalOpen(false)}
+        footer={[
+          <Button key="cancel" variant="secondary" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" variant="primary" onClick={handleCustomApiCall}>
+            Submit
+          </Button>
+        ]}
       >
         <Space direction="vertical" style={{ width: '100%' }}>
           <div>

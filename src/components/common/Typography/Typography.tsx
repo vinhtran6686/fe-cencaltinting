@@ -35,11 +35,17 @@ export const StyledParagraph = styled(Paragraph)`
   }
 `;
 
-export const HeaderTitle = styled(StyledTitle)`
+interface HeaderTitleProps {
+  withoutBackButton?: boolean;
+}
+
+export const HeaderTitle = styled(StyledTitle, {
+  shouldForwardProp: (prop) => prop !== 'withoutBackButton'
+})<HeaderTitleProps>`
   &.ant-typography {
     font-size: ${fontSizes.md};
     font-weight: 600;
-    margin-left: ${(props: { withoutBackButton?: boolean }) => props.withoutBackButton ? '0' : 12};
+    margin-left: ${(props) => props.withoutBackButton ? '0' : 12};
     flex-grow: 1;
     line-height: 1.2;
     margin-bottom: 0;

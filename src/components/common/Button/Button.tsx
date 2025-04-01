@@ -16,7 +16,9 @@ interface StyledButtonProps {
   fullWidth?: boolean;
 }
 
-const StyledButton = styled(AntButton) <StyledButtonProps>`
+const StyledButton = styled(AntButton, {
+  shouldForwardProp: (prop) => prop !== 'fullWidth'
+})<StyledButtonProps>`
   &.ant-btn {
     display: flex;
     align-items: center;
