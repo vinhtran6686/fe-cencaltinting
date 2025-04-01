@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Typography, 
   Button, 
@@ -12,7 +12,8 @@ import {
   Divider,
   Tag,
   Space,
-  Carousel
+  Carousel,
+  Spin
 } from 'antd';
 import { 
   ClockCircleOutlined, 
@@ -23,6 +24,8 @@ import {
   EditOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { useContactDetails, useTechnicians, useAvailableSlots, useCalculateEndTime } from '../../../../modules/appointments/hooks';
+import { ContactResponse } from '../../../../modules/appointments/services/contactsService';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -34,38 +37,6 @@ interface ReviewAndSendStepProps {
   onSubmit: () => void;
   goToStep?: (step: number) => void;
 }
-
-// Mock data for technicians
-const mockTechnicians = [
-  { id: '1', name: 'John Smith' },
-  { id: '2', name: 'Sarah Johnson' },
-  { id: '3', name: 'Michael Brown' },
-];
-
-// Mock data for available time slots
-const generateTimeSlots = () => {
-  const slots = [];
-  for (let hour = 8; hour <= 17; hour++) {
-    for (let minute of [0, 30]) {
-      const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-      slots.push({
-        time,
-        isAvailable: Math.random() > 0.3, // Randomly mark some as unavailable
-      });
-    }
-  }
-  return slots;
-};
-
-// Mock contact data
-const getMockContact = (contactId: string) => {
-  const contacts = {
-    '1': { id: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890' },
-    '2': { id: '2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901' },
-  };
-  
-  return contacts[contactId as keyof typeof contacts] || null;
-};
 
 const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
   formData,
@@ -82,10 +53,27 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
     formData.date ? dayjs(formData.date) : dayjs()
   );
   const [selectedTime, setSelectedTime] = useState<string | null>(formData.time || null);
-  const [timeSlots] = useState(generateTimeSlots());
   
   // Get contact information
-  const contact = formData.contact ? getMockContact(formData.contact) : null;
+  const { data: contactData, isLoading: isLoadingContact } = useContactDetails(formData.contactId || '');
+  const contact: ContactResponse | null = contactData || null;
+  
+  // Get technicians
+  const { data: techniciansData, isLoading: isLoadingTechnicians } = useTechnicians();
+  
+  // Get available slots for selected date
+  const serviceIds = formData.services?.map((service: any) => service.serviceIds || []).flat() || [];
+  const { data: slotsData, isLoading: isLoadingSlots } = useAvailableSlots({
+    date: selectedDate ? selectedDate.format('YYYY-MM-DD') : '',
+    serviceIds
+  });
+  
+  // Get estimated end time
+  const { data: endTimeData, isLoading: isLoadingEndTime } = useCalculateEndTime({
+    startDate: selectedDate ? selectedDate.format('YYYY-MM-DD') : '',
+    startTime: selectedTime || '',
+    serviceIds
+  });
   
   // Calculate total price
   const totalPrice = formData.services?.reduce(
@@ -100,19 +88,9 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
   ) || 0;
   
   // Calculate estimated end date/time
-  const calculateEndDate = () => {
-    if (!selectedDate || !selectedTime) return null;
-    
-    const [hours, minutes] = selectedTime.split(':').map(Number);
-    const startDateTime = selectedDate.hour(hours).minute(minutes);
-    
-    // Add total minutes to the start time
-    const endDateTime = startDateTime.add(totalTime, 'minute');
-    
-    return endDateTime;
-  };
-  
-  const estimatedEndDate = calculateEndDate();
+  const estimatedEndDateTime = endTimeData?.data ? 
+    `${endTimeData.data.endDate} ${endTimeData.data.endTime}` : 
+    null;
   
   // Handle date selection
   const handleDateChange = (date: dayjs.Dayjs | null) => {
@@ -266,7 +244,9 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
             headStyle={{ border: 'none', color: 'white' }}
             bodyStyle={{ background: '#1e1e1e', padding: '24px' }}
           >
-            {contact ? (
+            {isLoadingContact ? (
+              <Spin />
+            ) : contact ? (
               <Row gutter={[16, 16]}>
                 <Col span={24}>
                   <Text style={{ fontSize: '18px', color: 'white' }}>{contact.name}</Text>
@@ -375,41 +355,47 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
             
             <div style={{ marginTop: '24px' }}>
               <Text strong>Select a Time:</Text>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(4, 1fr)', 
-                gap: '8px',
-                marginTop: '12px'
-              }}>
-                {timeSlots.map((slot, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: '8px',
-                      border: '1px solid #d9d9d9',
-                      borderRadius: '4px',
-                      textAlign: 'center',
-                      cursor: slot.isAvailable ? 'pointer' : 'not-allowed',
-                      backgroundColor: selectedTime === slot.time 
-                        ? '#1890ff' 
-                        : slot.isAvailable 
-                          ? 'transparent' 
-                          : '#f5f5f5',
-                      color: selectedTime === slot.time ? 'white' : 'inherit',
-                      opacity: slot.isAvailable ? 1 : 0.5,
-                    }}
-                    onClick={() => slot.isAvailable && handleTimeSelect(slot.time)}
-                  >
-                    <Space>
-                      <ClockCircleOutlined />
-                      <span>{slot.time}</span>
-                    </Space>
-                  </div>
-                ))}
-              </div>
+              {isLoadingSlots ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                  <Spin />
+                </div>
+              ) : (
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(4, 1fr)', 
+                  gap: '8px',
+                  marginTop: '12px'
+                }}>
+                  {slotsData?.data.map((slot, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: '8px',
+                        border: '1px solid #d9d9d9',
+                        borderRadius: '4px',
+                        textAlign: 'center',
+                        cursor: slot.available ? 'pointer' : 'not-allowed',
+                        backgroundColor: selectedTime === slot.startTime 
+                          ? '#1890ff' 
+                          : slot.available 
+                            ? 'transparent' 
+                            : '#f5f5f5',
+                        color: selectedTime === slot.startTime ? 'white' : 'inherit',
+                        opacity: slot.available ? 1 : 0.5,
+                      }}
+                      onClick={() => slot.available && handleTimeSelect(slot.startTime)}
+                    >
+                      <Space>
+                        <ClockCircleOutlined />
+                        <span>{slot.startTime}</span>
+                      </Space>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
-            {estimatedEndDate && (
+            {estimatedEndDateTime && !isLoadingEndTime && (
               <div style={{ 
                 marginTop: '24px', 
                 padding: '12px', 
@@ -417,7 +403,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                 borderRadius: '4px',
                 border: '1px solid #91d5ff'
               }}>
-                <Text strong>Estimated End Date:</Text> {estimatedEndDate.format('MMMM D, YYYY - h:mm A')}
+                <Text strong>Estimated End Date:</Text> {dayjs(`${endTimeData?.data.endDate} ${endTimeData?.data.endTime}`).format('MMMM D, YYYY - h:mm A')}
               </div>
             )}
           </Card>
@@ -429,7 +415,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
             {formData.services && formData.services.length > 0 ? (
               <Row gutter={[16, 16]}>
                 {formData.services.map((service: any, index: number) => (
-                  <Col span={12} key={service.key}>
+                  <Col span={12} key={service.key || index}>
                     <Card 
                       style={{ marginBottom: '16px', height: '100%' }}
                       type="inner"
@@ -442,7 +428,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                     >
                       <div style={{ marginBottom: '16px' }}>
                         {service.children?.map((child: any) => (
-                          <div key={child.key} style={{ padding: '4px 0' }}>
+                          <div key={child.key || child._id} style={{ padding: '4px 0' }}>
                             • {child.name} (${child.price})
                           </div>
                         )) || 'No child services'}
@@ -450,16 +436,20 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                       
                       <Descriptions column={1}>
                         <Descriptions.Item label="Technician Assigned">
-                          <Select
-                            style={{ width: '100%' }}
-                            placeholder="Select a technician"
-                            value={service.technicianId}
-                            onChange={(value) => handleTechnicianChange(value, index)}
-                          >
-                            {mockTechnicians.map(tech => (
-                              <Option key={tech.id} value={tech.id}>{tech.name}</Option>
-                            ))}
-                          </Select>
+                          {isLoadingTechnicians ? (
+                            <Spin />
+                          ) : (
+                            <Select
+                              style={{ width: '100%' }}
+                              placeholder="Select a technician"
+                              value={service.technicianId}
+                              onChange={(value) => handleTechnicianChange(value, index)}
+                            >
+                              {techniciansData?.data.map(tech => (
+                                <Option key={tech._id} value={tech._id}>{tech.name}</Option>
+                              ))}
+                            </Select>
+                          )}
                         </Descriptions.Item>
                         <Descriptions.Item label="Start Date">
                           <DatePicker
@@ -479,10 +469,13 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                           />
                         </Descriptions.Item>
                         <Descriptions.Item label="Estimated End Date">
-                          {estimatedEndDate 
-                            ? estimatedEndDate.format('MMMM D, YYYY - h:mm A')
-                            : 'Not calculated yet'
-                          }
+                          {isLoadingEndTime ? (
+                            <Spin />
+                          ) : estimatedEndDateTime ? (
+                            dayjs(`${endTimeData?.data.endDate} ${endTimeData?.data.endTime}`).format('MMMM D, YYYY - h:mm A')
+                          ) : (
+                            'Not calculated yet'
+                          )}
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>

@@ -5,6 +5,8 @@ export const API_TIMEOUT = process.env.NEXT_PUBLIC_API_TIMEOUT ?
 // Maximum retry attempts when request fails
 export const MAX_RETRY_ATTEMPTS = 3;
 
+const BASE_URL = '';
+
 // List of API endpoints
 export const API_ENDPOINTS = {
   // Authentication
@@ -49,7 +51,46 @@ export const API_ENDPOINTS = {
     UNAUTHORIZED: '/api/v1/easyplayers/notifications/unauthorized',
     NOT_FOUND: '/api/v1/easyplayers/notifications/not-found',
     SERVER_ERROR: '/api/v1/easyplayers/notifications/server-error',
-  }
+  },
+
+  APPOINTMENTS: {
+    LIST: `${BASE_URL}/appointments`,
+    DETAILS: (id: string) => `${BASE_URL}/appointments/${id}`,
+    CREATE: `${BASE_URL}/appointments`,
+    UPDATE: (id: string) => `${BASE_URL}/appointments/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/appointments/${id}`,
+  },
+
+  CONTACTS: {
+    LIST: `${BASE_URL}/contacts`,
+    DETAILS: (id: string) => `${BASE_URL}/contacts/${id}`,
+    CREATE: `${BASE_URL}/contacts`,
+    UPDATE: (id: string) => `${BASE_URL}/contacts/${id}`,
+    DELETE: (id: string) => `${BASE_URL}/contacts/${id}`,
+  },
+
+  VEHICLES: {
+    YEARS: `${BASE_URL}/vehicles/years`,
+    MAKES: `${BASE_URL}/vehicles/makes`,
+    MODELS: `${BASE_URL}/vehicles/models`,
+    TYPES: `${BASE_URL}/vehicles/types`,
+  },
+
+  SERVICES: {
+    PACKAGES: `${BASE_URL}/services/packages`,
+    TAGS: `${BASE_URL}/services/tags`,
+    PACKAGE_DETAILS: (id: string) => `${BASE_URL}/services/packages/${id}`,
+  },
+
+  TECHNICIANS: {
+    LIST: `${BASE_URL}/technicians`,
+    AVAILABILITY: (id: string) => `${BASE_URL}/technicians/${id}/availability`,
+  },
+
+  SCHEDULING: {
+    AVAILABLE_SLOTS: `${BASE_URL}/scheduling/available-slots`,
+    CALCULATE_END_TIME: `${BASE_URL}/scheduling/calculate-end-time`,
+  },
 };
 
 // HTTP Status codes

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Form, Input, Select, Button, Typography, Space, Divider, Row, Col, Drawer, Card } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Select, Button, Typography, Space, Divider, Row, Col, Drawer, Card, Spin } from 'antd';
 import { PlusOutlined, DeleteOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
+import { useContacts, useVehicleYears, useVehicleMakes, useVehicleModels, useVehicleTypes } from '../../../../modules/appointments/hooks';
+import { ContactResponse } from '../../../../modules/appointments/services/contactsService';
+import { VehicleMake, VehicleModel, VehicleType, VehicleYear } from '@/modules/appointments/services/vehiclesService';
 
 const { Title, Text, Link } = Typography;
-const { Option } = Select;
 const { TextArea } = Input;
 
 interface ClientInformationStepProps {
@@ -11,16 +13,6 @@ interface ClientInformationStepProps {
   updateFormData: (data: any) => void;
   onNext: () => void;
 }
-
-const mockContacts = [
-  { id: '1', name: 'John Doe', email: 'john@example.com', phone: '123-456-7890' },
-  { id: '2', name: 'Jane Smith', email: 'jane@example.com', phone: '234-567-8901' },
-];
-
-const mockYears = ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016'];
-const mockMakes = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes'];
-const mockModels = ['Camry', 'Accord', 'F-150', 'Silverado', '3 Series', 'C-Class'];
-const mockVehicleTypes = ['Sedan', 'SUV', 'Truck', 'Van', 'Coupe', 'Convertible'];
 
 const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   formData,
@@ -30,15 +22,39 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const [form] = Form.useForm();
   const [isManualEntry, setIsManualEntry] = useState(formData.vehicleDetails?.isCustomEntry || false);
   const [createContactDrawerVisible, setCreateContactDrawerVisible] = useState(false);
-  const [selectedContact, setSelectedContact] = useState<any>(
-    formData.contact ? mockContacts.find(c => c.id === formData.contact) : null
-  );
+  const [selectedContact, setSelectedContact] = useState<ContactResponse | null>(null);
+
+  // Fetch contacts
+  const { data: contactsData, isLoading: isLoadingContacts } = useContacts({ limit: 100 });
+
+  // Fetch vehicle data
+  const { data: yearsData, isLoading: isLoadingYears, refetch: refetchYears } = useVehicleYears();
+  const { data: makesData, isLoading: isLoadingMakes, refetch: refetchMakes } = useVehicleMakes();
+  const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
+  const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
+  console.log(makesData);
+
+  useEffect(() => {
+    refetchYears();
+    refetchMakes();
+    refetchModels();
+    refetchTypes();
+  }, []);
+
+  useEffect(() => {
+    if (contactsData?.data && formData.contactId) {
+      const contact = contactsData.data.find((c: any) => c._id === formData.contactId);
+      if (contact) {
+        setSelectedContact(contact);
+      }
+    }
+  }, [contactsData, formData.contactId]);
 
   // Handle form submission
   const handleSubmit = (values: any) => {
     // Update form data
     updateFormData({
-      contact: values.contact,
+      contactId: values.contactId,
       vehicleDetails: {
         year: values.year,
         make: values.make,
@@ -64,14 +80,16 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
 
   // Handle contact selection
   const handleContactSelect = (value: string) => {
-    const contact = mockContacts.find(c => c.id === value);
-    form.setFieldsValue({ contact: value });
-    setSelectedContact(contact);
+    const contact = contactsData?.data.find((c: any) => c._id === value);
+    if (contact) {
+      form.setFieldsValue({ contactId: value });
+      setSelectedContact(contact);
+    }
   };
 
   // Handle removing selected contact
   const handleRemoveContact = () => {
-    form.setFieldsValue({ contact: undefined });
+    form.setFieldsValue({ contactId: undefined });
     setSelectedContact(null);
   };
 
@@ -91,13 +109,14 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
     closeCreateContactDrawer();
   };
 
+
   return (
     <div>
       <Form
         form={form}
         layout="vertical"
         initialValues={{
-          contact: formData.contact,
+          contactId: formData.contactId,
           year: formData.vehicleDetails?.year,
           make: formData.vehicleDetails?.make,
           model: formData.vehicleDetails?.model,
@@ -116,7 +135,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
           {/* Show this when a contact is selected */}
           {selectedContact ? (
             <div style={{ border: '1px solid #d9d9d9', borderRadius: '8px', padding: '16px', position: 'relative' }}>
-              <Form.Item name="contact" hidden>
+              <Form.Item name="contactId" hidden>
                 <Input />
               </Form.Item>
 
@@ -151,21 +170,20 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
           ) : (
             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
               <Form.Item
-                name="contact"
+                name="contactId"
                 rules={[{ required: true, message: 'Please select a contact' }]}
                 style={{ flex: 1, marginBottom: '8px' }}
               >
                 <Select
                   placeholder="Select a contact"
                   onChange={handleContactSelect}
+                  loading={isLoadingContacts}
                   style={{ width: '100%' }}
-                >
-                  {mockContacts.map(contact => (
-                    <Option key={contact.id} value={contact.id}>
-                      {contact.name} ({contact.phone})
-                    </Option>
-                  ))}
-                </Select>
+                  options={contactsData?.data?.map((contact: any) => ({
+                    label: `${contact.name} (${contact.phone})`,
+                    value: contact._id
+                  }))}
+                />
               </Form.Item>
               <Button
                 icon={<PlusOutlined />}
@@ -228,11 +246,14 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       label="Year"
                       rules={[{ required: true, message: 'Please select the year' }]}
                     >
-                      <Select placeholder="Select year">
-                        {mockYears.map(year => (
-                          <Option key={year} value={year}>{year}</Option>
-                        ))}
-                      </Select>
+                      <Select
+                        placeholder="Select year"
+                        loading={isLoadingYears}
+                        options={yearsData?.data?.map((year: VehicleYear, index: number) => ({
+                          label: year.value,
+                          value: year.id  
+                        }))}
+                      />
                     </Form.Item>
                   </Col>
                   <Col xs={12} style={{ flex: 1 }}>
@@ -241,11 +262,16 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       label="Make"
                       rules={[{ required: true, message: 'Please select the make' }]}
                     >
-                      <Select placeholder="Select make">
-                        {mockMakes.map(make => (
-                          <Option key={make} value={make}>{make}</Option>
-                        ))}
-                      </Select>
+                      <Select
+                        placeholder="Select make"
+                        loading={isLoadingMakes}
+                        options={makesData?.data?.map((make: VehicleMake, index: number) => {
+                          return {
+                            label: make.value,
+                            value: make.id
+                          }
+                        })}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -254,22 +280,28 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   label="Model"
                   rules={[{ required: true, message: 'Please select the model' }]}
                 >
-                  <Select placeholder="Select model">
-                    {mockModels.map(model => (
-                      <Option key={model} value={model}>{model}</Option>
-                    ))}
-                  </Select>
+                  <Select
+                    placeholder="Select model"
+                    loading={isLoadingModels}
+                    options={modelsData?.data?.map((model: VehicleModel, index: number) => ({
+                      label: model.value,
+                      value: model.id
+                    }))}
+                  />
                 </Form.Item>
                 <Form.Item
                   name="vehicleType"
                   label="Vehicle Type"
                   rules={[{ required: true, message: 'Please select the vehicle type' }]}
                 >
-                  <Select placeholder="Select vehicle type">
-                    {mockVehicleTypes.map(type => (
-                      <Option key={type} value={type}>{type}</Option>
-                    ))}
-                  </Select>
+                  <Select
+                    placeholder="Select vehicle type"
+                    loading={isLoadingTypes}
+                    options={typesData?.data?.map((type: VehicleType, index: number) => ({
+                      label: type.value,
+                      value: type.id
+                    }))}
+                  />
                 </Form.Item>
               </div>
             )}

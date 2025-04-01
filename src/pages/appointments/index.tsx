@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Typography, Space, Button, Tag, Spin, Row, Col, Card } from 'antd';
 import { PlusOutlined, CalendarOutlined, PhoneOutlined, MailOutlined, MessageOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { appointments } from '../../modules/appointments';
-import { fetchAppointments } from '../../modules/appointments/redux/appointmentsThunks';
 import { useRouter } from 'next/router';
+import { useAppointments, useContactDetails } from '../../modules/appointments/hooks';
+import { AppointmentResponse } from '../../modules/appointments/services/appointmentsService';
+import { ContactResponse } from '../../modules/appointments/services/contactsService';
 
 const { Title, Text } = Typography;
 
@@ -12,22 +12,16 @@ const statusColors = {
   'scheduled': 'blue',
   'in-progress': 'orange',
   'completed': 'green',
-  'cancelled': 'red'
+  'canceled': 'red'
 };
 
 const AppointmentsPage: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const appointmentsList = useAppSelector(appointments.selectors.selectAllAppointments);
-  const status = useAppSelector(appointments.selectors.selectAppointmentStatus);
-  const error = useAppSelector(appointments.selectors.selectAppointmentError);
   const [activeTab, setActiveTab] = useState<string>('all');
   const router = useRouter();
-
-  useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchAppointments());
-    }
-  }, [status, dispatch]);
+  
+  const { data, isLoading, isError, error } = useAppointments({
+    status: activeTab !== 'all' ? activeTab : undefined
+  });
 
   const handleCreateAppointment = () => {
     router.push('/appointments/create');
@@ -38,7 +32,7 @@ const AppointmentsPage: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (status === 'loading') {
+    if (isLoading) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
           <Spin size="large" tip="Loading appointments..." />
@@ -46,74 +40,22 @@ const AppointmentsPage: React.FC = () => {
       );
     }
 
-    if (status === 'failed') {
+    if (isError) {
       return (
         <div style={{ padding: '20px', color: 'red' }}>
-          Error loading appointments: {error}
+          Error loading appointments: {error?.message || 'Unknown error'}
         </div>
       );
     }
 
+    const appointments = data?.data || [];
+
     return (
       <Row gutter={[16, 16]}>
-        {Array.isArray(appointmentsList) && appointmentsList.length > 0 ? (
-          appointmentsList.map((appointment: any) => (
-            <Col span={24} key={appointment.id}>
-              <Card 
-                hoverable 
-                onClick={() => handleViewAppointment(appointment.id)}
-                style={{ width: '100%' }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <Title level={4} style={{ marginBottom: '8px' }}>
-                      {appointment.clientName || appointment.clientId || 'Not specified'}
-                    </Title>
-                    
-                    <Space direction="vertical" size="small" style={{ marginBottom: '16px' }}>
-                      <Space>
-                        <PhoneOutlined />
-                        <Text>{appointment.clientPhone || 'Not specified'}</Text>
-                      </Space>
-                      <Space>
-                        <MailOutlined />
-                        <Text>{appointment.clientEmail || 'Not specified'}</Text>
-                      </Space>
-                      {appointment.notes && (
-                        <Space>
-                          <MessageOutlined />
-                          <Text>{appointment.notes}</Text>
-                        </Space>
-                      )}
-                    </Space>
-                  </div>
-                  
-                  <Tag color={statusColors[appointment.status as keyof typeof statusColors] || 'default'} style={{ fontSize: '14px', padding: '2px 10px' }}>
-                    {appointment.status || 'Unknown'}
-                  </Tag>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-                  <Space>
-                    <CalendarOutlined />
-                    <Text>
-                      {appointment.startDate ? new Date(appointment.startDate).toLocaleDateString() : 'Not specified'}
-                      {appointment.endDate ? ` - ${new Date(appointment.endDate).toLocaleDateString()}` : ''}
-                    </Text>
-                  </Space>
-                  
-                  <Button 
-                    type="primary" 
-                    size="small" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewAppointment(appointment.id);
-                    }}
-                  >
-                    View Details
-                  </Button>
-                </div>
-              </Card>
+        {appointments.length > 0 ? (
+          appointments.map((appointment: AppointmentResponse) => (
+            <Col span={24} key={appointment._id}>
+              <AppointmentCard appointment={appointment} onViewDetails={() => handleViewAppointment(appointment._id)} />
             </Col>
           ))
         ) : (
@@ -146,6 +88,82 @@ const AppointmentsPage: React.FC = () => {
         {renderContent()}
       </Space>
     </div>
+  );
+};
+
+// Client card component
+interface AppointmentCardProps {
+  appointment: AppointmentResponse;
+  onViewDetails: () => void;
+}
+
+const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDetails }) => {
+  const { data: contactData } = useContactDetails(appointment.contactId);
+  const contact: ContactResponse = contactData || {
+    _id: '',
+    name: 'Not specified',
+    email: 'Not specified',
+    phone: 'Not specified',
+    createdAt: '',
+    updatedAt: ''
+  };
+
+  return (
+    <Card 
+      hoverable 
+      onClick={onViewDetails}
+      style={{ width: '100%' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <Title level={4} style={{ marginBottom: '8px' }}>
+            {contact.name}
+          </Title>
+          
+          <Space direction="vertical" size="small" style={{ marginBottom: '16px' }}>
+            <Space>
+              <PhoneOutlined />
+              <Text>{contact.phone}</Text>
+            </Space>
+            <Space>
+              <MailOutlined />
+              <Text>{contact.email}</Text>
+            </Space>
+            {appointment.notes && (
+              <Space>
+                <MessageOutlined />
+                <Text>{appointment.notes}</Text>
+              </Space>
+            )}
+          </Space>
+        </div>
+        
+        <Tag color={statusColors[appointment.status as keyof typeof statusColors] || 'default'} style={{ fontSize: '14px', padding: '2px 10px' }}>
+          {appointment.status || 'Unknown'}
+        </Tag>
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+        <Space>
+          <CalendarOutlined />
+          <Text>
+            {appointment.startDate ? new Date(appointment.startDate).toLocaleDateString() : 'Not specified'}
+            {appointment.endDate ? ` - ${new Date(appointment.endDate).toLocaleDateString()}` : ''}
+          </Text>
+        </Space>
+        
+        <Button 
+          type="primary" 
+          size="small" 
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewDetails();
+          }}
+        >
+          View Details
+        </Button>
+      </div>
+    </Card>
   );
 };
 

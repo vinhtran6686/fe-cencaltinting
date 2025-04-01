@@ -11,4 +11,13 @@ export const appointments = {
   selectors: appointmentSelectors
 };
 
-export default appointmentsReducer; 
+export default appointmentsReducer;
+
+// Export hooks
+export * from './hooks';
+
+// Export services
+export * from './services';
+
+// Export components
+export * from './components'; 

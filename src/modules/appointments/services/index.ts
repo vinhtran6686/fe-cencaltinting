@@ -29,4 +29,11 @@ export const appointmentsService = {
   }
 };
 
-export default appointmentsService; 
+export default appointmentsService;
+
+export * from './appointmentsService';
+export * from './contactsService';
+export * from './vehiclesService';
+export * from './servicesService';
+export * from './techniciansService';
+export * from './schedulingService'; 
