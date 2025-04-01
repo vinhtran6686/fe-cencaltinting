@@ -5,6 +5,7 @@ export const colors = {
   success: '#52c41a',
   warning: '#faad14',
   error: '#ff4d4f',
+  info: '#1890ff',
   textPrimary: '#FFFFFF',
   textSecondary: 'rgba(0, 0, 0, 0.65)',
   textDisabled: 'rgba(0, 0, 0, 0.25)',
@@ -14,6 +15,13 @@ export const colors = {
   borderLight: '#f0f0f0',
   sidebarBackground: '#0F0F0F',
   headerBackground: '#0F0F0F', 
+
+  // Hover colors
+  primaryHover: '#1890ff',
+  secondaryHover: '#52c41a',
+  successHover: '#52c41a',
+  warningHover: '#faad14',
+  errorHover: '#ff4d4f',
   
   // Active menu colors
   menuActive: '#2E7FF1',
