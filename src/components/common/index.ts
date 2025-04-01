@@ -5,6 +5,9 @@ export * from './Input';
 export * from './Modal';
 export * from './Drawer';
 
+// Export Form components
+export * from './Form';
+
 // Re-export types
 export type { ButtonProps } from './Button';
 export type { InputProps } from './Input';
