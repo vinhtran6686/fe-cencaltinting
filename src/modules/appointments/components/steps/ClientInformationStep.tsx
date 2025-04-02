@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, Typography, Space, Divider, Row, Col, Drawer, Card, Spin } from 'antd';
 import { PlusOutlined, DeleteOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
-import { useContacts, useVehicleYears, useVehicleMakes, useVehicleModels, useVehicleTypes } from '../../../../modules/appointments/hooks';
-import { ContactResponse } from '../../../../modules/appointments/services/contactsService';
+import { useContacts, useVehicleYears, useVehicleMakes, useVehicleModels, useVehicleTypes } from '@/modules/appointments/hooks';
+import { ContactResponse } from '@/modules/appointments/services/contactsService';
 import { VehicleMake, VehicleModel, VehicleType, VehicleYear } from '@/modules/appointments/services/vehiclesService';
 
 const { Title, Text, Link } = Typography;
@@ -32,14 +32,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { data: makesData, isLoading: isLoadingMakes, refetch: refetchMakes } = useVehicleMakes();
   const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
   const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
-  console.log(makesData);
-
-  useEffect(() => {
-    refetchYears();
-    refetchMakes();
-    refetchModels();
-    refetchTypes();
-  }, []);
+  // useEffect(() => { 
 
   useEffect(() => {
     if (contactsData?.data && formData.contactId) {
@@ -179,7 +172,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   onChange={handleContactSelect}
                   loading={isLoadingContacts}
                   style={{ width: '100%' }}
-                  options={contactsData?.data?.map((contact: any) => ({
+                  options={(contactsData?.data || [])?.map((contact: any) => ({
                     label: `${contact.name} (${contact.phone})`,
                     value: contact._id
                   }))}
@@ -249,9 +242,9 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       <Select
                         placeholder="Select year"
                         loading={isLoadingYears}
-                        options={yearsData?.data?.map((year: VehicleYear, index: number) => ({
+                        options={(yearsData || []).map((year: VehicleYear, index: number) => ({
                           label: year.value,
-                          value: year.id  
+                          value: year.id
                         }))}
                       />
                     </Form.Item>
@@ -265,7 +258,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       <Select
                         placeholder="Select make"
                         loading={isLoadingMakes}
-                        options={makesData?.data?.map((make: VehicleMake, index: number) => {
+                        options={(makesData || []).map((make: VehicleMake, index: number) => {
                           return {
                             label: make.value,
                             value: make.id
@@ -283,7 +276,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <Select
                     placeholder="Select model"
                     loading={isLoadingModels}
-                    options={modelsData?.data?.map((model: VehicleModel, index: number) => ({
+                    options={(modelsData || []).map((model: VehicleModel, index: number) => ({
                       label: model.value,
                       value: model.id
                     }))}
@@ -297,7 +290,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <Select
                     placeholder="Select vehicle type"
                     loading={isLoadingTypes}
-                    options={typesData?.data?.map((type: VehicleType, index: number) => ({
+                    options={(typesData || []).map((type: VehicleType, index: number) => ({
                       label: type.value,
                       value: type.id
                     }))}

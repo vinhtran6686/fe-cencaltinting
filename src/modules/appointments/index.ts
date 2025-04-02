@@ -20,4 +20,15 @@ export * from './hooks';
 export * from './services';
 
 // Export components
-export * from './components'; 
+export * from './components';
+
+// Core exports from the appointments module
+import * as components from './components';
+import * as hooks from './hooks';
+import * as services from './services';
+
+export { 
+  components,
+  hooks,
+  services 
+}; 

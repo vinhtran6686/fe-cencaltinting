@@ -24,17 +24,17 @@ export class ContactsService {
     limit?: number;
     search?: string;
   }): Promise<ContactListData> {
-    const response = await apiService.get<ApiResponse<ContactListData>>(
+    const response = await apiService.get<ContactListData>(
       API_ENDPOINTS.CONTACTS.LIST,
       params
     );
-    return response.data.data;
+    return response;
   }
 
   static async getContactDetails(id: string): Promise<ContactResponse> {
-    const response = await apiService.get<ApiResponse<ContactResponse>>(
+    const response = await apiService.get<ContactResponse>(
       API_ENDPOINTS.CONTACTS.DETAILS(id)
     );
-    return response.data.data;
+    return response;
   }
 } 

@@ -24,8 +24,8 @@ import {
   EditOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useContactDetails, useTechnicians, useAvailableSlots, useCalculateEndTime } from '../../../../modules/appointments/hooks';
-import { ContactResponse } from '../../../../modules/appointments/services/contactsService';
+import { useContactDetails, useTechnicians, useAvailableSlots, useCalculateEndTime } from '@/modules/appointments/hooks';
+import { ContactResponse } from '@/modules/appointments/services/contactsService';
 
 const { Title, Text } = Typography;
 const { Option } = Select;

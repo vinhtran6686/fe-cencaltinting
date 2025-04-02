@@ -1,13 +1,7 @@
-import { apiService } from '../../../services/apiService';
+import { apiService, ApiResponse } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
 
-// Interface chung cho API response
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  statusCode: number;
-  timestamp: string;
-}
+// Interface chung cho API response đã được import từ apiService
 
 export interface AppointmentService {
   packageId: string;
@@ -82,40 +76,41 @@ export class AppointmentsService {
     endDate?: string;
     search?: string;
   }): Promise<AppointmentListData> {
-    const response = await apiService.get<ApiResponse<AppointmentListData>>(
+    const response = await apiService.get<AppointmentListData>(
       API_ENDPOINTS.APPOINTMENTS.LIST,
       params
     );
-    return response.data.data;
+    console.log('response', response);
+    return response;
   }
 
   static async getAppointmentDetails(id: string): Promise<AppointmentResponse> {
-    const response = await apiService.get<ApiResponse<AppointmentResponse>>(
+    const response = await apiService.get<AppointmentResponse>(
       API_ENDPOINTS.APPOINTMENTS.DETAILS(id)
     );
-    return response.data.data;
+    return response;
   }
 
   static async createAppointment(data: AppointmentCreateInput): Promise<AppointmentResponse> {
-    const response = await apiService.post<ApiResponse<AppointmentResponse>>(
+    const response = await apiService.post<AppointmentResponse>(
       API_ENDPOINTS.APPOINTMENTS.CREATE,
       data
     );
-    return response.data.data;
+    return response;
   }
 
   static async updateAppointment(id: string, data: Partial<AppointmentCreateInput>): Promise<AppointmentResponse> {
-    const response = await apiService.put<ApiResponse<AppointmentResponse>>(
+    const response = await apiService.put<AppointmentResponse>(
       API_ENDPOINTS.APPOINTMENTS.UPDATE(id),
       data
     );
-    return response.data.data;
+    return response;
   }
 
   static async cancelAppointment(id: string): Promise<{ message: string }> {
-    const response = await apiService.delete<ApiResponse<{ message: string }>>(
+    const response = await apiService.delete<{ message: string }>(
       API_ENDPOINTS.APPOINTMENTS.DELETE(id)
     );
-    return response.data.data;
+    return response;
   }
 } 

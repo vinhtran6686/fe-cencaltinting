@@ -1,6 +1,6 @@
 import { apiService } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
-import { ApiResponse } from './appointmentsService';
+import { ApiResponse } from '../../../services/apiService';
 
 export interface VehicleYear {
   id: string;
@@ -40,30 +40,26 @@ export interface VehicleTypesData {
 
 export class VehiclesService {
   static async getVehicleYears(): Promise<VehicleYearsData> {
-    const response = await apiService.get<ApiResponse<VehicleYearsData>>(
+    return await apiService.get<VehicleYearsData>(
       API_ENDPOINTS.VEHICLES.YEARS
     );
-    return response.data.data;
   }
 
   static async getVehicleMakes(): Promise<VehicleMakesData> {
-    const response = await apiService.get<ApiResponse<VehicleMakesData>>(
+    return await apiService.get<VehicleMakesData>(
       API_ENDPOINTS.VEHICLES.MAKES
     );
-    return response.data.data;
   }
 
   static async getVehicleModels(): Promise<VehicleModelsData> {
-    const response = await apiService.get<ApiResponse<VehicleModelsData>>(
+    return await apiService.get<VehicleModelsData>(
       API_ENDPOINTS.VEHICLES.MODELS
     );
-    return response.data.data;
   }
 
   static async getVehicleTypes(): Promise<VehicleTypesData> {
-    const response = await apiService.get<ApiResponse<VehicleTypesData>>(
+    return await apiService.get<VehicleTypesData>(
       API_ENDPOINTS.VEHICLES.TYPES
     );
-    return response.data.data;
   }
 } 

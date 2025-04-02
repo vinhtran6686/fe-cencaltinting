@@ -7,9 +7,9 @@ import { notificationService } from './notificationService'
 // Type definitions
 export interface ApiResponse<T = any> {
   data: T
-  status: number
-  statusText: string
-  headers: any
+  message: string
+  statusCode: number
+  timestamp: string
 }
 
 // Extended request config to allow for custom properties
@@ -228,20 +228,20 @@ api.interceptors.response.use(
 
 // API service abstraction for better testability and organization
 export const apiService = {
-  get: <T>(url: string, params?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
-    api.get(url, { ...config, params }),
+  get: <T>(url: string, params?: any, config?: CustomRequestConfig): Promise<T> =>
+    api.get(url, { ...config, params }).then(response => response.data.data),
 
-  post: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
-    api.post(url, data, config),
+  post: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<T> =>
+    api.post(url, data, config).then(response => response.data.data),
 
-  put: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
-    api.put(url, data, config),
+  put: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<T> =>
+    api.put(url, data, config).then(response => response.data.data),
 
-  patch: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
-    api.patch(url, data, config),
+  patch: <T>(url: string, data?: any, config?: CustomRequestConfig): Promise<T> =>
+    api.patch(url, data, config).then(response => response.data.data),
 
-  delete: <T>(url: string, config?: CustomRequestConfig): Promise<ApiResponse<T>> =>
-    api.delete(url, config),
+  delete: <T>(url: string, config?: CustomRequestConfig): Promise<T> =>
+    api.delete(url, config).then(response => response.data.data),
 };
 
 export default api; 

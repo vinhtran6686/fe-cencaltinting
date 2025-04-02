@@ -1,26 +1,22 @@
 import { apiService } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
-import { ApiResponse } from './appointmentsService';
+import { ApiResponse } from '../../../services/apiService';
 
 export interface ServiceItem {
   _id: string;
   name: string;
-  duration: number;
+  price: number;
+  estimatedTime: number;
 }
 
 export interface ServicePackage {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  totalPrice: number;
   estimatedTime: number;
   services: ServiceItem[];
   tags: string[];
-}
-
-export interface ServiceTag {
-  _id: string;
-  name: string;
 }
 
 export interface ServicePackagesData {
@@ -28,7 +24,7 @@ export interface ServicePackagesData {
 }
 
 export interface ServiceTagsData {
-  data: ServiceTag[];
+  data: string[];
 }
 
 export class ServicesService {
@@ -39,7 +35,7 @@ export class ServicesService {
     const response = await apiService.get<ApiResponse<ServicePackagesData>>(
       API_ENDPOINTS.SERVICES.PACKAGES,
       params
-    );
+    ); 
     return response.data.data;
   }
 
