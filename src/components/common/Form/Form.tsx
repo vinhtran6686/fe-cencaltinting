@@ -12,7 +12,7 @@ export interface FormProps extends Omit<AntFormProps, 'size' | 'requiredMark'> {
   enhancedValidation?: boolean;
   requiredMark?: boolean | 'optional';
   layout?: 'horizontal' | 'vertical' | 'inline';
-  itemBackground?: string;
+  itembackground?: string;
 }
 
 interface FormInterface extends React.ForwardRefExoticComponent<FormProps & React.RefAttributes<FormInstance>> {
@@ -26,15 +26,17 @@ interface FormInterface extends React.ForwardRefExoticComponent<FormProps & Reac
 }
 
 interface StyledFormProps {
-  fullWidth?: boolean;
-  $itemBackground?: string;
+  $fullWidth?: boolean;
+  $itembackground?: string;
 }
 
-const StyledForm = styled(AntForm) <StyledFormProps>`
+const StyledForm = styled(AntForm, {
+  shouldForwardProp: (prop) => prop !== '$fullWidth' && prop !== '$itembackground'
+}) <StyledFormProps>`
   &.ant-form {
     .ant-form-item { 
-      ${props => props.$itemBackground && `
-        background-color: ${props.$itemBackground};
+      ${props => props.$itembackground && `
+        background-color: ${props.$itembackground};
         padding: ${spacing.md};
         border-radius: ${borderRadius.lg};
       `}
@@ -90,7 +92,7 @@ const StyledForm = styled(AntForm) <StyledFormProps>`
       }
     }
     
-    ${props => props.fullWidth && `
+    ${props => props.$fullWidth && `
       .ant-form-item-control-input {
         width: 100%;
         
@@ -132,7 +134,7 @@ export const FormComponent = React.forwardRef<FormInstance, FormProps>(({
   enhancedValidation = false,
   requiredMark = true,
   layout = 'vertical',
-  itemBackground,
+  itembackground,
   ...props
 }, ref) => {
   const [form] = AntForm.useForm();
@@ -147,16 +149,26 @@ export const FormComponent = React.forwardRef<FormInstance, FormProps>(({
 
   const StyledComponent = enhancedValidation ? StyledEnhancedForm : StyledForm;
 
+  // Tách các props để tránh truyền xuống DOM
+  const styledProps = {
+    $fullWidth: fullWidth,
+    $itembackground: itembackground
+  };
+
+  // Props cho AntForm gốc
+  const formProps = {
+    form: formInstance,
+    ref,
+    size,
+    requiredMark: antRequiredMark,
+    layout,
+    ...props
+  };
+
   return (
     <StyledComponent
-      form={formInstance}
-      ref={ref}
-      size={size}
-      fullWidth={fullWidth}
-      requiredMark={antRequiredMark}
-      layout={layout}
-      $itemBackground={itemBackground}
-      {...props}
+      {...formProps}
+      {...styledProps}
     >
       {children as any}
     </StyledComponent>

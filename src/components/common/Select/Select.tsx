@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo, forwardRef } from 'react';
-import { Select as AntSelect, Empty } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+"use client"
+
+import React, { useState, useEffect, useMemo, forwardRef } from 'react';
+import { Select as AntSelect, Empty } from 'antd'; 
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import { SelectProps as AntSelectProps } from 'antd/es/select';
@@ -16,7 +17,7 @@ export interface SelectProps extends Omit<AntSelectProps<any>, 'dropdownRender'>
 }
 
 interface StyledSelectProps {
-  fullWidth?: boolean;
+  $fullWidth?: boolean;
 }
 
 // Global styles to override Ant Design dropdown
@@ -47,9 +48,11 @@ const GlobalSelectStyles = () => (
 );
 
 // Styled Components
-const StyledSelect = styled(AntSelect) <StyledSelectProps>`
+const StyledSelect = styled(AntSelect, {
+  shouldForwardProp: (prop) => prop !== '$fullWidth'
+})<StyledSelectProps>`
   &.ant-select {
-    width: ${props => props.fullWidth ? '100%' : 'auto'};
+    width: ${props => props.$fullWidth ? '100%' : 'auto'};
     display: flex;
     height: 100%;
     align-items: center;
@@ -173,52 +176,31 @@ export const SelectComponent = forwardRef<any, SelectProps>(({
   ...props
 }, ref) => {
   const [searchValue, setSearchValue] = useState('');
-  const searchInputRef = useRef<any>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
-  // Focus search input when dropdown opens
+  // Set mounted state after component has mounted on client
   useEffect(() => {
-    const handleDropdownVisibleChange = (open: boolean) => {
-      if (open && searchable && searchInputRef.current) {
-        // Use setTimeout to allow the dropdown to render first
-        setTimeout(() => {
-          searchInputRef.current?.focus();
-        }, 100);
-      }
-      
-      // Reset search value when dropdown closes
-      if (!open) {
-        setSearchValue('');
-      }
-    };
-    
-    // Add event listener to the select component
-    const selectElement = document.querySelector('.custom-select');
-    if (selectElement) {
-      selectElement.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        if (target.classList.contains('ant-select-selector')) {
-          handleDropdownVisibleChange(true);
-        }
-      });
-    }
-    
-    return () => {
-      if (selectElement) {
-        selectElement.removeEventListener('click', () => { });
-      }
-    };
-  }, [searchable]);
+    setMounted(true);
+  }, []);
   
+  // Reset search value when dropdown closes
+  useEffect(() => {
+    if (!dropdownOpen) {
+      setSearchValue('');
+    }
+  }, [dropdownOpen]);
+
   // Filter options based on search value
   const filteredOptions = useMemo(() => {
     if (!searchValue || !options) return options;
-    
+
     return options.filter(option => {
       const label = typeof option.label === 'string' ? option.label : '';
       return label.toLowerCase().includes(searchValue.toLowerCase());
     });
   }, [options, searchValue]);
-  
+
   // Custom dropdown renderer
   const customDropdownRender = (menu: React.ReactNode) => {
     return (
@@ -226,7 +208,8 @@ export const SelectComponent = forwardRef<any, SelectProps>(({
         {searchable && (
           <SearchContainer>
             <StyledSearchInput
-              id="select-search-input"
+              // Only add autoFocus when component has mounted on client
+              {...(mounted && dropdownOpen ? { autoFocus: true } : {})}
               prefix={<SearchIcon />}
               placeholder={searchPlaceholder}
               value={searchValue}
@@ -240,9 +223,9 @@ export const SelectComponent = forwardRef<any, SelectProps>(({
             menu
           ) : (
             <EmptyContainer>
-              <Empty 
+              <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={emptyText} 
+                description={emptyText}
                 style={{ color: colors.textSecondary }}
               />
             </EmptyContainer>
@@ -251,31 +234,30 @@ export const SelectComponent = forwardRef<any, SelectProps>(({
       </DropdownContainer>
     );
   };
-  
-  // Update ref after render
-  useEffect(() => {
-    if (searchable) {
-      const inputElement = document.getElementById('select-search-input');
-      if (inputElement) {
-        searchInputRef.current = inputElement;
-      }
-    }
-  }, [searchable]);
-  
+
+  // Filter out custom props to prevent React warnings
+  // Only include standard Ant Design Select props
+  const selectProps = { 
+    className: "custom-select",
+    dropdownRender: customDropdownRender,
+    options: filteredOptions || options,
+    placeholder,
+    value,
+    onChange,
+    ref,
+    suffixIcon: <ArrowIcon />,
+    onDropdownVisibleChange: (open: boolean) => {
+      setDropdownOpen(open);
+    },
+    ...props
+  };
+
   return (
     <>
       <GlobalSelectStyles />
       <StyledSelect
-        className="custom-select"
-        fullWidth={fullWidth}
-        dropdownRender={customDropdownRender}
-        options={filteredOptions || options}
-        suffixIcon={<ArrowIcon />}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        ref={ref}
-        {...props}
+        $fullWidth={fullWidth}
+        {...selectProps}
       >
         {children}
       </StyledSelect>
@@ -283,7 +265,7 @@ export const SelectComponent = forwardRef<any, SelectProps>(({
   );
 });
 
-// Static properties
+// Change static properties to handle the forwarded ref properly
 export const Select = SelectComponent as unknown as React.FC<SelectProps> & {
   Option: typeof AntSelect.Option;
   OptGroup: typeof AntSelect.OptGroup;

@@ -10,16 +10,25 @@ export interface FormItemProps extends AntFormItemProps {
   showCount?: boolean;
   maxCount?: number;
   isLastItem?: boolean;
+  fullWidth?: boolean;
 }
 
 interface StyledFormItemProps {
-  showCount?: boolean;
-  currentCount?: number;
-  maxCount?: number;
+  $showCount?: boolean;
+  $currentCount?: number;
+  $maxCount?: number;
   $isLastItem?: boolean;
+  $fullWidth?: boolean;
 }
 
-const StyledFormItem = styled(Form.Item) <StyledFormItemProps>`
+const StyledFormItem = styled(Form.Item, {
+  shouldForwardProp: (prop) => 
+    prop !== '$showCount' && 
+    prop !== '$currentCount' && 
+    prop !== '$maxCount' && 
+    prop !== '$isLastItem' &&
+    prop !== '$fullWidth'
+})<StyledFormItemProps>`
   &.ant-form-item {
     position: relative;
     border-radius: ${borderRadius.lg};
@@ -54,13 +63,13 @@ const StyledFormItem = styled(Form.Item) <StyledFormItemProps>`
       }
     } 
     
-    ${props => props.showCount && `
+    ${props => props.$showCount && `
       .character-counter {
         position: absolute;
         right: 0;
         bottom: -18px;
         font-size: 0.8em;
-        color: ${props.currentCount && props.maxCount && props.currentCount > props.maxCount
+        color: ${props.$currentCount && props.$maxCount && props.$currentCount > props.$maxCount
       ? colors.error
       : 'rgba(255, 255, 255, 0.45)'};
       }
@@ -68,6 +77,10 @@ const StyledFormItem = styled(Form.Item) <StyledFormItemProps>`
     
     ${props => props.$isLastItem && `
       margin-bottom: 0 !important;
+    `}
+    
+    ${props => props.$fullWidth && `
+      width: 100%;
     `}
     
     &.ant-form-item-has-error {
@@ -118,6 +131,7 @@ export const FormItem: React.FC<FormItemProps> = ({
   showCount,
   maxCount,
   isLastItem,
+  fullWidth,
   ...props
 }) => {
   const [count, setCount] = React.useState(0);
@@ -142,16 +156,27 @@ export const FormItem: React.FC<FormItemProps> = ({
     );
   }, [helpTooltip, props.help]);
 
+  // Tách các props để tránh truyền xuống DOM
+  const styledProps = {
+    $showCount: showCount,
+    $currentCount: count,
+    $maxCount: maxCount,
+    $isLastItem: isLastItem,
+    $fullWidth: fullWidth
+  };
+
+  // Props cho Form.Item gốc
+  const formItemProps = {
+    label: customLabel || label,
+    required,
+    help: helpContent,
+    ...props
+  };
+
   return (
     <StyledFormItem
-      label={customLabel || label}
-      required={required}
-      help={helpContent}
-      showCount={showCount}
-      currentCount={count}
-      maxCount={maxCount}
-      $isLastItem={isLastItem}
-      {...props}
+      {...formItemProps}
+      {...styledProps}
     >
       {children as React.ReactNode}
       {showCount && (

@@ -7,16 +7,18 @@ import { colors, spacing, borderRadius } from '../../../theme/tokens';
 export type CardCustomVariant = 'default' | 'primary' | 'secondary' | 'inline';
 
 export interface CardProps extends Omit<AntCardProps, 'variant'> {
-  fullWidth?: boolean;
+  fullwidth?: boolean;
   variant?: CardCustomVariant;
 }
 
 interface StyledCardProps {
-  fullWidth?: boolean;
+  $fullwidth?: boolean;
   $variant: CardCustomVariant;
 }
 
-const StyledCard = styled(AntCard) <StyledCardProps>`
+const StyledCard = styled(AntCard, {
+  shouldForwardProp: (prop) => prop !== '$variant' && prop !== '$fullwidth'
+})<StyledCardProps>`
   &.ant-card {
     background-color: #18181B;
     border-radius: 12px;
@@ -44,7 +46,7 @@ const StyledCard = styled(AntCard) <StyledCardProps>`
       padding: 16px;
     }
     
-    ${props => props.fullWidth && `
+    ${props => props.$fullwidth && `
       width: 100%;
     `}
     
@@ -65,13 +67,13 @@ const StyledCard = styled(AntCard) <StyledCardProps>`
 
 export const CardComponent: React.FC<CardProps> = ({
   children,
-  fullWidth = false,
+  fullwidth = false,
   variant = 'default',
   ...props
 }) => {
   return (
     <StyledCard
-      fullWidth={fullWidth}
+      $fullwidth={fullwidth}
       $variant={variant}
       {...props}
     >
