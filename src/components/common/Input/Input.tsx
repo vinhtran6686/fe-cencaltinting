@@ -2,6 +2,7 @@ import React from 'react';
 import { Input as AntInput } from 'antd';
 import styled from '@emotion/styled';
 import { InputProps as AntInputProps } from 'antd/es/input';
+import { TextAreaProps as AntTextAreaProps } from 'antd/es/input/TextArea';
 import { colors, spacing, fontSizes, borderRadius } from '../../../theme/tokens';
 
 /**
@@ -13,12 +14,26 @@ export interface InputProps extends AntInputProps {
 }
 
 /**
+ * Extended TextArea Props 
+ */
+export interface TextAreaProps extends AntTextAreaProps {
+  /** Optional fullWidth prop to make input take 100% of container width */
+  fullWidth?: boolean;
+}
+
+interface StyledInputProps {
+  $fullWidth?: boolean;
+}
+
+/**
  * Base styled input component that extends Ant Design's Input
  */
-const StyledInput = styled(AntInput)<InputProps>`
+const StyledInput = styled(AntInput, {
+  shouldForwardProp: (prop) => prop !== '$fullWidth'
+})<StyledInputProps>`
   &.ant-input {
     border-radius: ${borderRadius.lg};
-    width: ${props => props.fullWidth ? '100%' : 'auto'};
+    width: ${props => props.$fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {
       border-color: ${colors.primary};
@@ -35,19 +50,21 @@ export const Input: React.FC<InputProps> = ({
 }) => {
   return (
     <StyledInput 
-      fullWidth={fullWidth}
+      $fullWidth={fullWidth}
       {...props}
     />
   );
 };
 
 /**
- * Password input variant
+ * Password input component
  */
-export const Password = styled(AntInput.Password)<InputProps>`
+const StyledPassword = styled(AntInput.Password, {
+  shouldForwardProp: (prop) => prop !== '$fullWidth'
+})<StyledInputProps>`
   &.ant-input-password {
     border-radius: ${spacing.xs};
-    width: ${props => props.fullWidth ? '100%' : 'auto'};
+    width: ${props => props.$fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {
       border-color: ${colors.primary};
@@ -55,19 +72,45 @@ export const Password = styled(AntInput.Password)<InputProps>`
   }
 `;
 
+export const Password: React.FC<InputProps> = ({ 
+  fullWidth = false,
+  ...props 
+}) => {
+  return (
+    <StyledPassword
+      $fullWidth={fullWidth}
+      {...props}
+    />
+  );
+};
+
 /**
- * Text area variant
+ * TextArea component
  */
-export const TextArea = styled(AntInput.TextArea)<InputProps>`
+const StyledTextArea = styled(AntInput.TextArea, {
+  shouldForwardProp: (prop) => prop !== '$fullWidth'
+})<StyledInputProps>`
   &.ant-input {
     border-radius: ${spacing.xs};
-    width: ${props => props.fullWidth ? '100%' : 'auto'};
+    width: ${props => props.$fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {
       border-color: ${colors.primary};
     }
   }
 `;
+
+export const TextArea: React.FC<TextAreaProps> = ({ 
+  fullWidth = false,
+  ...props 
+}) => {
+  return (
+    <StyledTextArea
+      $fullWidth={fullWidth}
+      {...props as any} // Type cast để tránh lỗi TypeScript
+    />
+  );
+};
 
 export default {
   Input,

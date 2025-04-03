@@ -41,7 +41,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
   const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
 
-  useEffect(() => {
+  useEffect(() => { 
     if (contactsData?.data && formData.contactId) {
       const contact = contactsData.data.find((c: any) => c._id === formData.contactId);
       if (contact) {
@@ -75,38 +75,38 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
 
   // Toggle between select dropdown and manual entry
   const toggleManualEntry = () => {
-    setIsManualEntry(!isManualEntry);
+    // setIsManualEntry(!isManualEntry);
   };
 
   // Handle contact selection
   const handleContactSelect = (value: string) => {
-    const contact = contactsData?.data.find((c: any) => c._id === value);
-    if (contact) {
-      form.setFieldsValue({ contactId: value });
-      setSelectedContact(contact);
-    }
+    // const contact = contactsData?.data.find((c: any) => c._id === value);
+    // if (contact) {
+    //   form.setFieldsValue({ contactId: value });
+    //   setSelectedContact(contact);
+    // }
   };
 
   // Handle removing selected contact
   const handleRemoveContact = () => {
-    form.setFieldsValue({ contactId: undefined });
-    setSelectedContact(null);
+    // form.setFieldsValue({ contactId: undefined });
+    // setSelectedContact(null);
   };
 
   // Handle create contact drawer
   const showCreateContactDrawer = () => {
-    setCreateContactDrawerVisible(true);
+    // setCreateContactDrawerVisible(true);
   };
 
   const closeCreateContactDrawer = () => {
-    setCreateContactDrawerVisible(false);
+    // setCreateContactDrawerVisible(false);
   };
 
   // Handle create contact submission
   const handleCreateContactSubmit = () => {
-    console.log('Create new contact');
-    // In a real app, you would save the contact data here
-    closeCreateContactDrawer();
+    // console.log('Create new contact');
+    // // In a real app, you would save the contact data here
+    // closeCreateContactDrawer();
   };
 
 
@@ -115,22 +115,21 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
       <Form
         form={form}
         initialValues={{
-          contactId: formData.contactId,
-          year: formData.vehicleDetails?.year,
-          make: formData.vehicleDetails?.make,
-          model: formData.vehicleDetails?.model,
-          vehicleType: formData.vehicleDetails?.vehicleType,
-          customYear: formData.vehicleDetails?.customYear,
-          customMake: formData.vehicleDetails?.customMake,
-          customModel: formData.vehicleDetails?.customModel,
-          customVehicleType: formData.vehicleDetails?.customVehicleType,
+          contactId: formData.contactId || undefined,
+          year: formData.vehicleDetails?.year || undefined,
+          make: formData.vehicleDetails?.make || undefined,
+          model: formData.vehicleDetails?.model || undefined,
+          vehicleType: formData.vehicleDetails?.vehicleType || undefined,
+          customYear: formData.vehicleDetails?.customYear || '',
+          customMake: formData.vehicleDetails?.customMake || '',
+          customModel: formData.vehicleDetails?.customModel || '',
+          customVehicleType: formData.vehicleDetails?.customVehicleType || '',
         }}
         onFinish={handleSubmit}
         layout="vertical"
       >
         {/* Contact Selection */}
         <div style={{ marginBottom: '24px' }}>
-          <Title level={5} style={{ margin: '0 0 12px 0' }}>Contact</Title>
 
           {selectedContact ? (
             <div style={{ border: '1px solid #d9d9d9', borderRadius: '8px', padding: '16px', position: 'relative' }}>
@@ -170,11 +169,14 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
               <FormItem
                 name="contactId"
+                label="Contact"
                 rules={[{ required: true, message: 'Please select a contact' }]}
                 style={{ flex: 1, marginBottom: '8px' }}
-              > 
+              >
                 <Select
                   placeholder="Select"
+                  onChange={handleContactSelect}
+                  loading={isLoadingContacts}
                   options={(contactsData?.data || [])?.map((contact: any) => ({
                     label: `${contact.name} (${contact.phone})`,
                     value: contact._id
@@ -240,10 +242,10 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                     <FormItem
                       name="year"
                       label="Year"
-                      required
+                      rules={[{ required: true, message: 'Please select a year' }]}
                     >
                       <Select
-                        placeholder="Select year"
+                        placeholder="Select"
                         loading={isLoadingYears}
                         options={(yearsData || []).map((year: VehicleYear, index: number) => ({
                           label: year.value,
@@ -259,7 +261,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       required
                     >
                       <Select
-                        placeholder="Select make"
+                        placeholder="Select"
                         loading={isLoadingMakes}
                         options={(makesData || []).map((make: VehicleMake, index: number) => {
                           return {
@@ -277,7 +279,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   required
                 >
                   <Select
-                    placeholder="Select model"
+                    placeholder="Select"
                     loading={isLoadingModels}
                     options={(modelsData || []).map((model: VehicleModel, index: number) => ({
                       label: model.value,
@@ -291,7 +293,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   required
                 >
                   <Select
-                    placeholder="Select vehicle type"
+                    placeholder="Select"
                     loading={isLoadingTypes}
                     options={(typesData || []).map((type: VehicleType, index: number) => ({
                       label: type.value,
