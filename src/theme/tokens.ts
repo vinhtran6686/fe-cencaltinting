@@ -11,10 +11,15 @@ export const colors = {
   textDisabled: 'rgba(0, 0, 0, 0.25)',
   bgPrimary: '#0F0F0F',
   bgSecondary: '#f5f5f5',
+  bgTertiary: '#18181B',
   borderColor: '#2F323E',
   borderLight: '#f0f0f0',
   sidebarBackground: '#0F0F0F',
   headerBackground: '#0F0F0F', 
+  placeholder: '#7F859F',
+
+  // Form Item
+  formItemBackground: '#2F323E',
 
   // Hover colors
   primaryHover: '#1890ff',
@@ -31,6 +36,7 @@ export const colors = {
   // Background states
   backgroundLight: '#f9f9f9',
   backgroundHover: '#f5f5f5',
+  scrollbarThumb: '#A4A8B7',
 }
 
 // Spacing tokens

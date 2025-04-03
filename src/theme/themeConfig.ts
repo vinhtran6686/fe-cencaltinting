@@ -25,7 +25,7 @@ const themeConfig: ThemeConfig = {
     },
     Card: {
       colorBorderSecondary: colors.borderColor,
-    },
+    }, 
     Layout: {
       headerBg: colors.headerBackground,
       siderBg: colors.sidebarBackground,

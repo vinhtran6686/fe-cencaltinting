@@ -13,8 +13,8 @@ const AppointmentCreatePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Title level={2} style={{ marginBottom: '24px' }}>Create Appointment</Title>
+    <div>
+      <Title level={3} style={{ marginBottom: '16px', lineHeight: '52px' }}>Create Appointment</Title>
       <CreateAppointmentFlow 
         onSuccess={handleSuccess}
         onError={(error) => console.error('Appointment creation failed:', error)}

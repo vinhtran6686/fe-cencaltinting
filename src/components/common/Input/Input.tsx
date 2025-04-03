@@ -2,7 +2,7 @@ import React from 'react';
 import { Input as AntInput } from 'antd';
 import styled from '@emotion/styled';
 import { InputProps as AntInputProps } from 'antd/es/input';
-import { colors, spacing, fontSizes } from '../../../theme/tokens';
+import { colors, spacing, fontSizes, borderRadius } from '../../../theme/tokens';
 
 /**
  * Extended Input Props that include our custom properties
@@ -17,7 +17,7 @@ export interface InputProps extends AntInputProps {
  */
 const StyledInput = styled(AntInput)<InputProps>`
   &.ant-input {
-    border-radius: ${spacing.xs};
+    border-radius: ${borderRadius.lg};
     width: ${props => props.fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {

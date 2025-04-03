@@ -10,7 +10,9 @@ export interface FormProps extends Omit<AntFormProps, 'size' | 'requiredMark'> {
   size?: 'small' | 'middle' | 'large';
   fullWidth?: boolean;
   enhancedValidation?: boolean;
-  requiredMark?: boolean | 'optional' | 'text';
+  requiredMark?: boolean | 'optional';
+  layout?: 'horizontal' | 'vertical' | 'inline';
+  itemBackground?: string;
 }
 
 interface FormInterface extends React.ForwardRefExoticComponent<FormProps & React.RefAttributes<FormInstance>> {
@@ -25,26 +27,40 @@ interface FormInterface extends React.ForwardRefExoticComponent<FormProps & Reac
 
 interface StyledFormProps {
   fullWidth?: boolean;
+  $itemBackground?: string;
 }
 
-const StyledForm = styled(AntForm)<StyledFormProps>`
+const StyledForm = styled(AntForm) <StyledFormProps>`
   &.ant-form {
-    .ant-form-item {
-      margin-bottom: ${spacing.md};
+    .ant-form-item { 
+      ${props => props.$itemBackground && `
+        background-color: ${props.$itemBackground};
+        padding: ${spacing.md};
+        border-radius: ${borderRadius.lg};
+      `}
+      .ant-form-item-required {
+        display: flex;
+        gap: ${spacing.xs};
+        & > div{
+          order: 0;
+        }
+        &:before{
+          order: 1;
+          margin-top: -4px;
+        }
+        &:after{
+          display: none;
+        }
+      }
     }
 
     .ant-form-item-label {
-      padding-bottom: ${spacing.xs};
+      padding-bottom: ${spacing.xs} !important;
       
       > label {
         color: ${colors.textPrimary};
         font-weight: 500;
-        
-        &.ant-form-item-required:not(.ant-form-item-required-mark-optional) {
-          &::before {
-            color: ${colors.error};
-          }
-        }
+        line-height: 1.5;
       }
     }
     
@@ -52,6 +68,26 @@ const StyledForm = styled(AntForm)<StyledFormProps>`
       color: ${colors.error};
       font-size: 0.85em;
       margin-top: ${spacing.xs};
+    }
+    
+    /* Add consistent input styling */
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-select-selector,
+    .ant-picker,
+    .ant-input-number,
+    .ant-cascader-picker {
+      background-color: ${colors.borderColor};
+      border-color: ${colors.borderColor};
+      
+      &:hover, &:focus {
+        border-color: ${colors.primary};
+      }
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+        font-style: italic;
+      }
     }
     
     ${props => props.fullWidth && `
@@ -95,19 +131,20 @@ export const FormComponent = React.forwardRef<FormInstance, FormProps>(({
   size = 'middle',
   enhancedValidation = false,
   requiredMark = true,
+  layout = 'vertical',
+  itemBackground,
   ...props
 }, ref) => {
   const [form] = AntForm.useForm();
   const formInstance = ref ? undefined : form;
-  
+
   const antRequiredMark = useMemo((): AntRequiredMark => {
-    if (requiredMark === 'text') return true;
     if (requiredMark === true) return true;
     if (requiredMark === false) return false;
     if (requiredMark === 'optional') return 'optional';
     return true;
   }, [requiredMark]);
-  
+
   const StyledComponent = enhancedValidation ? StyledEnhancedForm : StyledForm;
 
   return (
@@ -117,6 +154,8 @@ export const FormComponent = React.forwardRef<FormInstance, FormProps>(({
       size={size}
       fullWidth={fullWidth}
       requiredMark={antRequiredMark}
+      layout={layout}
+      $itemBackground={itemBackground}
       {...props}
     >
       {children as any}

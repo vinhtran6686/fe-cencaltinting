@@ -10,16 +10,15 @@ export const StyledLayout = styled(Layout)`
 
 export const MainLayout = styled(Layout, {
   shouldForwardProp: (prop) => prop !== 'sidebarWidth'
-})<{ sidebarWidth: number }>`
+}) <{ sidebarWidth: number }>`
   margin-left: ${props => props.sidebarWidth}px;
   transition: margin-left 0.2s;
   background: rgb(24,48,83);
   background: linear-gradient(180deg, rgba(24,48,83,1) 0%, rgba(15,15,15,1) 30%);
 `;
 
-export const StyledContent = styled(Content)`
-  margin: ${spacing.md};
-  padding: ${spacing.lg};
+export const StyledContent = styled(Content)` 
+  padding: ${spacing.lg} ${spacing.md};
   background: transparent;
   border-radius: ${spacing.xs};
   overflow: auto;

@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Typography, Space, Divider, Row, Col, Drawer, Card, Spin } from 'antd';
+import { Space, Divider, Row, Col, Spin, Flex } from 'antd';
+import { Typography as AntTypography } from 'antd';
+import { Button, Card } from '@/components/common';
+import { Form, FormItem } from '@/components/common/Form';
+import { Input, TextArea } from '@/components/common/Input';
+import { CustomDrawer } from '@/components/common/Drawer';
+import { Title, Text, Paragraph } from '@/components/common/Typography';
 import { PlusOutlined, DeleteOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 import { useContacts, useVehicleYears, useVehicleMakes, useVehicleModels, useVehicleTypes } from '@/modules/appointments/hooks';
 import { ContactResponse } from '@/modules/appointments/services/contactsService';
 import { VehicleMake, VehicleModel, VehicleType, VehicleYear } from '@/modules/appointments/services/vehiclesService';
+import { spacing } from '@/theme/tokens';
+import { Select } from '@/components/common/Select';
 
-const { Title, Text, Link } = Typography;
-const { TextArea } = Input;
+
+const { Link } = AntTypography;
 
 interface ClientInformationStepProps {
   formData: any;
@@ -32,7 +40,6 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { data: makesData, isLoading: isLoadingMakes, refetch: refetchMakes } = useVehicleMakes();
   const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
   const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
-  // useEffect(() => { 
 
   useEffect(() => {
     if (contactsData?.data && formData.contactId) {
@@ -107,7 +114,6 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
     <div>
       <Form
         form={form}
-        layout="vertical"
         initialValues={{
           contactId: formData.contactId,
           year: formData.vehicleDetails?.year,
@@ -120,17 +126,17 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
           customVehicleType: formData.vehicleDetails?.customVehicleType,
         }}
         onFinish={handleSubmit}
+        layout="vertical"
       >
         {/* Contact Selection */}
         <div style={{ marginBottom: '24px' }}>
           <Title level={5} style={{ margin: '0 0 12px 0' }}>Contact</Title>
 
-          {/* Show this when a contact is selected */}
           {selectedContact ? (
             <div style={{ border: '1px solid #d9d9d9', borderRadius: '8px', padding: '16px', position: 'relative' }}>
-              <Form.Item name="contactId" hidden>
+              <FormItem name="contactId" hidden>
                 <Input />
-              </Form.Item>
+              </FormItem>
 
               <Title level={5} style={{ margin: '0 0 8px 0' }}>
                 {selectedContact.name}
@@ -162,22 +168,19 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
             </div>
           ) : (
             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-              <Form.Item
+              <FormItem
                 name="contactId"
                 rules={[{ required: true, message: 'Please select a contact' }]}
                 style={{ flex: 1, marginBottom: '8px' }}
-              >
+              > 
                 <Select
-                  placeholder="Select a contact"
-                  onChange={handleContactSelect}
-                  loading={isLoadingContacts}
-                  style={{ width: '100%' }}
+                  placeholder="Select"
                   options={(contactsData?.data || [])?.map((contact: any) => ({
                     label: `${contact.name} (${contact.phone})`,
                     value: contact._id
                   }))}
                 />
-              </Form.Item>
+              </FormItem>
               <Button
                 icon={<PlusOutlined />}
                 onClick={showCreateContactDrawer}
@@ -186,58 +189,58 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
               />
             </div>
           )}
+
+
+
         </div>
 
         {/* Vehicle Details */}
         <div>
-          <Title level={5} style={{ margin: '0 0 12px 0' }}>Vehicle Details</Title>
-
-          <div style={{ border: '1px solid #d9d9d9', borderRadius: '8px', padding: '16px' }}>
+          <Title level={5} style={{ marginBottom: spacing.md }}>Vehicle Detail</Title>
+          <Card variant="inline">
             {isManualEntry ? (
               <div>
-                <Row gutter={16} style={{ marginBottom: '16px' }}>
-                  <Col xs={12} style={{ flex: 1 }}>
-                    <Form.Item
-                      name="customYear"
-                      label="Year"
-                      rules={[{ required: true, message: 'Please enter the year' }]}
-                    >
-                      <Input placeholder="Enter year" />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={12} style={{ flex: 1 }}>
-                    <Form.Item
-                      name="customMake"
-                      label="Make"
-                      rules={[{ required: true, message: 'Please enter the make' }]}
-                    >
-                      <Input placeholder="Enter make" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item
+                <Flex gap={spacing.md}>
+                  <FormItem
+                    name="customYear"
+                    label="Year"
+                    required
+                    style={{ flex: 1 }}
+                  >
+                    <Input placeholder="Enter year" />
+                  </FormItem>
+                  <FormItem
+                    name="customMake"
+                    label="Make"
+                    required
+                    style={{ flex: 1 }}
+                  >
+                    <Input placeholder="Enter make" />
+                  </FormItem>
+                </Flex>
+                <FormItem
                   name="customModel"
                   label="Model"
-                  rules={[{ required: true, message: 'Please enter the model' }]}
+                  required
                 >
                   <Input placeholder="Enter model" />
-                </Form.Item>
-                <Form.Item
+                </FormItem>
+                <FormItem
                   name="customVehicleType"
                   label="Vehicle Type"
-                  rules={[{ required: true, message: 'Please enter the vehicle type' }]}
+                  required
                 >
                   <Input placeholder="Enter vehicle type" />
-                </Form.Item>
+                </FormItem>
               </div>
             ) : (
               <div>
-                <Row gutter={16} style={{ marginBottom: '16px' }}>
+                <Row gutter={16} style={{ marginBottom: spacing.lg }}>
                   <Col xs={12} style={{ flex: 1 }}>
-                    <Form.Item
+                    <FormItem
                       name="year"
                       label="Year"
-                      rules={[{ required: true, message: 'Please select the year' }]}
+                      required
                     >
                       <Select
                         placeholder="Select year"
@@ -247,13 +250,13 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                           value: year.id
                         }))}
                       />
-                    </Form.Item>
+                    </FormItem>
                   </Col>
                   <Col xs={12} style={{ flex: 1 }}>
-                    <Form.Item
+                    <FormItem
                       name="make"
                       label="Make"
-                      rules={[{ required: true, message: 'Please select the make' }]}
+                      required
                     >
                       <Select
                         placeholder="Select make"
@@ -265,13 +268,13 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                           }
                         })}
                       />
-                    </Form.Item>
+                    </FormItem>
                   </Col>
                 </Row>
-                <Form.Item
+                <FormItem
                   name="model"
                   label="Model"
-                  rules={[{ required: true, message: 'Please select the model' }]}
+                  required
                 >
                   <Select
                     placeholder="Select model"
@@ -281,11 +284,11 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       value: model.id
                     }))}
                   />
-                </Form.Item>
-                <Form.Item
+                </FormItem>
+                <FormItem
                   name="vehicleType"
                   label="Vehicle Type"
-                  rules={[{ required: true, message: 'Please select the vehicle type' }]}
+                  required
                 >
                   <Select
                     placeholder="Select vehicle type"
@@ -295,18 +298,18 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       value: type.id
                     }))}
                   />
-                </Form.Item>
+                </FormItem>
               </div>
             )}
-          </div>
+          </Card>
 
-          <div style={{ marginTop: '16px', marginBottom: '24px' }}>
+          <Flex style={{ margin: '24px 0' }}>
             <Link onClick={toggleManualEntry}>
               {isManualEntry
                 ? "I prefer to pick from the available Vehicle options."
                 : "Can't find a vehicle? Enter it manually."}
             </Link>
-          </div>
+          </Flex>
         </div>
 
         {/* Navigation buttons */}
@@ -318,59 +321,51 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
       </Form>
 
       {/* Create Contact Drawer */}
-      <Drawer
+      <CustomDrawer
         title="Create New Contact"
-        placement="right"
-        onClose={closeCreateContactDrawer}
         open={createContactDrawerVisible}
+        onClose={closeCreateContactDrawer}
+        onSave={handleCreateContactSubmit}
         width={400}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Button onClick={closeCreateContactDrawer}>
-              Cancel
-            </Button>
-            <Button type="primary" onClick={handleCreateContactSubmit}>
-              Save
-            </Button>
-          </div>
-        }
+        cancelText="Cancel"
+        saveText="Save"
       >
         <Form layout="vertical">
-          <Form.Item
+          <FormItem
             label="Name"
             name="contactName"
-            rules={[{ required: true, message: 'Please enter contact name' }]}
+            required
           >
             <Input placeholder="Enter full name" />
-          </Form.Item>
-          <Form.Item
+          </FormItem>
+          <FormItem
             label="Email"
             name="contactEmail"
-            rules={[{ required: true, message: 'Please enter email' }]}
+            required
           >
             <Input placeholder="Enter email address" />
-          </Form.Item>
-          <Form.Item
+          </FormItem>
+          <FormItem
             label="Phone Number"
             name="contactPhone"
-            rules={[{ required: true, message: 'Please enter phone number' }]}
+            required
           >
             <Input placeholder="Enter phone number" />
-          </Form.Item>
-          <Form.Item
+          </FormItem>
+          <FormItem
             label="Additional Phone Number"
             name="contactAdditionalPhone"
           >
             <Input placeholder="Enter additional phone number" />
-          </Form.Item>
-          <Form.Item
+          </FormItem>
+          <FormItem
             label="Note"
             name="contactNote"
           >
             <TextArea placeholder="Enter notes" rows={3} />
-          </Form.Item>
+          </FormItem>
         </Form>
-      </Drawer>
+      </CustomDrawer>
     </div>
   );
 };

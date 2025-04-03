@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Steps, Typography, Card, message, Button, Row, Col } from 'antd';
+import { message, Row, Col } from 'antd';
+import { Button, Card, StepBar } from '@/components/common';
+import { Title } from '@/components/common/Typography';
 import { useCreateAppointment } from '../../hooks';
 import ClientInformationStep from '../steps/ClientInformationStep';
 import ServiceSelectionStep from '../steps/ServicesStep';
 import ReviewAndSendStep from '../steps/ReviewAndSendStep';
-
-const { Title } = Typography;
 
 interface CreateAppointmentProps {
   onSuccess?: () => void;
@@ -141,22 +141,20 @@ const CreateAppointmentFlow: React.FC<CreateAppointmentProps> = ({
 
   return (
     <div>
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} md={16}>
-          <Card>
+          <Card variant="default">
             <div className="steps-content" style={{ marginBottom: '24px' }}>
               {steps[currentStep].content}
             </div>
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card style={{ position: 'sticky', top: '24px' }}>
-            <Steps
+          <Card variant="secondary">
+            <StepBar
               current={currentStep}
-              direction="vertical"
-              size="small"
-              items={steps.map(item => ({ title: item.title, description: item.description }))}
-              style={{ marginBottom: '24px' }}
+              orientation="vertical"
+              steps={steps.map(item => ({ title: item.title, description: item.description }))}
             />
           </Card>
         </Col>
