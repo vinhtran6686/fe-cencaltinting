@@ -1,6 +1,6 @@
 import { apiService } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
-import { ApiResponse, MetaData } from './appointmentsService';
+import { MetaData } from './appointmentsService';
 
 export interface ContactResponse {
   _id: string;
@@ -16,6 +16,15 @@ export interface ContactResponse {
 export interface ContactListData {
   data: ContactResponse[];
   meta: MetaData;
+}
+
+export interface CreateContactPayload {
+  name: string;
+  email?: string;
+  phone?: string;
+  additionalPhone?: string;
+  additionalInformation?: string;
+  notes?: string;
 }
 
 export class ContactsService {
@@ -34,6 +43,18 @@ export class ContactsService {
   static async getContactDetails(id: string): Promise<ContactResponse> {
     const response = await apiService.get<ContactResponse>(
       API_ENDPOINTS.CONTACTS.DETAILS(id)
+    );
+    return response;
+  }
+
+  static async createContact(
+    data: CreateContactPayload,
+    options?: { showSuccessNotification?: boolean }
+  ): Promise<ContactResponse> {
+    const response = await apiService.post<ContactResponse>(
+      API_ENDPOINTS.CONTACTS.CREATE,
+      data,
+      { showSuccessNotification: options?.showSuccessNotification }
     );
     return response;
   }

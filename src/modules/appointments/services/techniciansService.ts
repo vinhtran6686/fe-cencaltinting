@@ -1,6 +1,6 @@
-import { apiService } from '../../../services/apiService';
-import { API_ENDPOINTS } from '../../../constants/api';
-import { ApiResponse } from './appointmentsService';
+import { ApiResponse, apiService } from '../../../services/apiService';
+import { API_ENDPOINTS } from '../../../constants/api'; 
+import { MetaData } from './appointmentsService';
 
 export interface Technician {
   _id: string;
@@ -22,6 +22,7 @@ export interface TechnicianAvailability {
 
 export interface TechniciansData {
   data: Technician[];
+  meta: MetaData;
 }
 
 export interface TechnicianAvailabilityData {
@@ -30,10 +31,10 @@ export interface TechnicianAvailabilityData {
 
 export class TechniciansService {
   static async getTechnicians(): Promise<TechniciansData> {
-    const response = await apiService.get<ApiResponse<TechniciansData>>(
+    const response = await apiService.get<TechniciansData>(
       API_ENDPOINTS.TECHNICIANS.LIST
     );
-    return response.data.data;
+    return response;
   }
 
   static async getTechnicianAvailability(
@@ -43,10 +44,10 @@ export class TechniciansService {
       endDate: string;
     }
   ): Promise<TechnicianAvailabilityData> {
-    const response = await apiService.get<ApiResponse<TechnicianAvailabilityData>>(
+    const response = await apiService.get<TechnicianAvailabilityData>(
       API_ENDPOINTS.TECHNICIANS.AVAILABILITY(id),
       params
     );
-    return response.data.data;
+    return response;
   }
 } 

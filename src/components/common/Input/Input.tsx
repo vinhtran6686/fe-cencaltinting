@@ -63,7 +63,7 @@ const StyledPassword = styled(AntInput.Password, {
   shouldForwardProp: (prop) => prop !== '$fullWidth'
 })<StyledInputProps>`
   &.ant-input-password {
-    border-radius: ${spacing.xs};
+    border-radius: ${borderRadius.lg};
     width: ${props => props.$fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {
@@ -91,7 +91,7 @@ const StyledTextArea = styled(AntInput.TextArea, {
   shouldForwardProp: (prop) => prop !== '$fullWidth'
 })<StyledInputProps>`
   &.ant-input {
-    border-radius: ${spacing.xs};
+    border-radius: ${borderRadius.lg};
     width: ${props => props.$fullWidth ? '100%' : 'auto'};
     
     &:hover, &:focus {

@@ -37,6 +37,9 @@ export const colors = {
   backgroundLight: '#f9f9f9',
   backgroundHover: '#f5f5f5',
   scrollbarThumb: '#A4A8B7',
+
+  // Typography
+  descriptionText: '#A4A8B7'
 }
 
 // Spacing tokens

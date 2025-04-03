@@ -16,6 +16,18 @@ export const FormValidation = {
     message,
   }),
 
+  // More flexible phone validation (accepts international formats)
+  phoneInternational: (message: string = 'Please enter a valid phone number'): Rule => ({
+    pattern: /^(\+\d{1,3}[-\s]?)?\(?(\d{3})\)?[-\s]?(\d{3})[-\s]?(\d{4})$/,
+    message,
+  }),
+
+  // Simple phone validation (just numbers, dashes, spaces, parentheses, plus)
+  phoneSimple: (message: string = 'Please enter a valid phone number'): Rule => ({
+    pattern: /^[0-9\-\+\(\)\s]+$/,
+    message,
+  }),
+
   url: (message: string = 'Please enter a valid URL'): Rule => ({
     type: 'url',
     message,
@@ -71,6 +83,43 @@ export const FormValidation = {
       }
     },
   }),
+
+  // Require either this field or another field
+  requiredUnless: (field: string, message: string = 'Either this field or the other is required'): Rule => ({
+    validator: (_, value, callback) => {
+      const form = (callback as any)?.form;
+      if (!form) return Promise.resolve();
+      
+      const otherValue = form.getFieldValue(field);
+      if (!value && !otherValue) {
+        return Promise.reject(message);
+      }
+      return Promise.resolve();
+    },
+  }),
+
+  // Ensure value is different from another field
+  differentFrom: (field: string, message: string = 'This value must be different from the other field'): Rule => ({
+    validator: (_, value, callback) => {
+      const form = (callback as any)?.form;
+      if (!form) return Promise.resolve();
+      
+      const otherValue = form.getFieldValue(field);
+      if (value && value === otherValue) {
+        return Promise.reject(message);
+      }
+      return Promise.resolve();
+    },
+  }),
+
+  // Name validation (letters, spaces, hyphens, apostrophes)
+  name: (message: string = 'Please enter a valid name'): Rule => ({
+    pattern: /^[\p{L}\s'-]+$/u,
+    message,
+  }),
+
+  // Compound validation with multiple rules
+  compose: (...rules: Rule[]): Rule[] => rules,
 };
 
 export default FormValidation; 

@@ -23,7 +23,7 @@ export const StyledText = styled(Text)`
   ${commonTypographyStyles}
   
   &.ant-typography {
-    font-size: ${fontSizes.md};
+    font-size: ${fontSizes.sm};
   }
 `;
 
@@ -31,7 +31,7 @@ export const StyledParagraph = styled(Paragraph)`
   ${commonTypographyStyles}
   
   &.ant-typography {
-    margin-bottom: ${spacing.md};
+    margin-bottom: ${spacing.sm};
   }
 `;
 

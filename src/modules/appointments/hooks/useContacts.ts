@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { ContactsService, ContactListData } from '../services/contactsService';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ContactsService, ContactListData, CreateContactPayload } from '../services/contactsService';
 
 export const useContacts = (params?: {
   page?: number;
@@ -17,5 +17,20 @@ export const useContactDetails = (id: string) => {
     queryKey: ['contact', id],
     queryFn: () => ContactsService.getContactDetails(id),
     enabled: !!id,
+  });
+};
+
+export const useCreateContact = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (params: { 
+      data: CreateContactPayload, 
+      options?: { showSuccessNotification?: boolean }
+    }) => ContactsService.createContact(params.data, params.options),
+    onSuccess: () => {
+      // Invalidate contacts query to refetch
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+    },
   });
 }; 

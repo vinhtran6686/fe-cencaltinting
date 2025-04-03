@@ -6,14 +6,23 @@ import { Card } from '@/components/common/Card';
 import { Form, FormItem } from '@/components/common/Form';
 import { Input, TextArea } from '@/components/common/Input';
 import { CustomDrawer } from '@/components/common/Drawer';
-import { Title, Text, Paragraph } from '@/components/common/Typography';
-import { PlusOutlined, DeleteOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
-import { useContacts, useVehicleYears, useVehicleMakes, useVehicleModels, useVehicleTypes } from '@/modules/appointments/hooks';
-import { ContactResponse } from '@/modules/appointments/services/contactsService';
+import { Title, Paragraph, Text } from '@/components/common/Typography';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  useContacts,
+  useVehicleYears,
+  useVehicleMakes,
+  useVehicleModels,
+  useVehicleTypes,
+  useCreateContact,
+  useContactValidation
+} from '@/modules/appointments/hooks';
+import { ContactResponse, CreateContactPayload } from '@/modules/appointments/services/contactsService';
 import { VehicleMake, VehicleModel, VehicleType, VehicleYear } from '@/modules/appointments/services/vehiclesService';
-import { spacing } from '@/theme/tokens';
+import { colors, spacing } from '@/theme/tokens';
 import { Select } from '@/components/common/Select';
-
+import FormValidation from '@/components/common/Form/FormValidation';
+import { useNotification } from '@/components/providers/NotificationProvider';
 
 const { Link } = AntTypography;
 
@@ -29,12 +38,22 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   onNext,
 }) => {
   const [form] = Form.useForm();
+  const [contactForm] = Form.useForm();
   const [isManualEntry, setIsManualEntry] = useState(formData.vehicleDetails?.isCustomEntry || false);
   const [createContactDrawerVisible, setCreateContactDrawerVisible] = useState(false);
   const [selectedContact, setSelectedContact] = useState<ContactResponse | null>(null);
 
+  // Get contact validation rules
+  const contactValidation = useContactValidation();
+
+  // Get notification service
+  const notification = useNotification();
+
   // Fetch contacts
   const { data: contactsData, isLoading: isLoadingContacts } = useContacts({ limit: 100 });
+
+  // Create contact mutation
+  const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
 
   // Fetch vehicle data
   const { data: yearsData, isLoading: isLoadingYears, refetch: refetchYears } = useVehicleYears();
@@ -50,6 +69,18 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
       }
     }
   }, [contactsData, formData.contactId]);
+
+  // Custom validator to ensure additional phone is different from phone
+  const validateDifferentPhone = (_: any, value: string) => {
+    if (!value) return Promise.resolve();
+
+    const mainPhone = contactForm.getFieldValue('contactPhone');
+    if (value === mainPhone) {
+      return Promise.reject('Additional phone must be different from primary phone');
+    }
+
+    return Promise.resolve();
+  };
 
   // Handle form submission
   const handleSubmit = (values: any) => {
@@ -76,40 +107,73 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
 
   // Toggle between select dropdown and manual entry
   const toggleManualEntry = () => {
-    // setIsManualEntry(!isManualEntry);
+    setIsManualEntry(!isManualEntry);
   };
 
   // Handle contact selection
   const handleContactSelect = (value: string) => {
-    // const contact = contactsData?.data.find((c: any) => c._id === value);
-    // if (contact) {
-    //   form.setFieldsValue({ contactId: value });
-    //   setSelectedContact(contact);
-    // }
+    const contact = contactsData?.data.find((c: any) => c._id === value);
+    if (contact) {
+      form.setFieldsValue({ contactId: value });
+      setSelectedContact(contact);
+    }
   };
 
   // Handle removing selected contact
   const handleRemoveContact = () => {
-    // form.setFieldsValue({ contactId: undefined });
-    // setSelectedContact(null);
+    form.setFieldsValue({ contactId: undefined });
+    setSelectedContact(null);
   };
 
   // Handle create contact drawer
   const showCreateContactDrawer = () => {
-    // setCreateContactDrawerVisible(true);
+    setCreateContactDrawerVisible(true);
+    contactForm.resetFields();
   };
 
   const closeCreateContactDrawer = () => {
-    // setCreateContactDrawerVisible(false);
+    setCreateContactDrawerVisible(false);
   };
 
   // Handle create contact submission
-  const handleCreateContactSubmit = () => {
-    // console.log('Create new contact');
-    // // In a real app, you would save the contact data here
-    // closeCreateContactDrawer();
-  };
+  const handleCreateContactSubmit = async () => {
+    try {
+      // Validate form fields
+      const values = await contactForm.validateFields();
 
+      // Transform form data to match API payload
+      const payload: CreateContactPayload = {
+        name: values.contactName,
+        email: values.contactEmail,
+        phone: values.contactPhone,
+        additionalInformation: values.contactAdditionalPhone,
+        notes: values.contactNote,
+      };
+
+      // Call the create contact API with disabled automatic notifications
+      createContact({
+        data: payload,
+        options: { showSuccessNotification: false }
+      }, {
+        onSuccess: (newContact) => {
+          // Select the newly created contact
+          form.setFieldsValue({ contactId: newContact._id });
+          setSelectedContact(newContact);
+
+          // Close the drawer
+          closeCreateContactDrawer();
+
+          // Show success notification
+          notification.showSuccess(
+            'Contact Created',
+            `${newContact.name} has been added to your contacts.`
+          );
+        },
+      });
+    } catch (error) {
+      // Validation error handled by the form - errors will be displayed automatically
+    }
+  };
 
   return (
     <div>
@@ -133,45 +197,36 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
         <div style={{ marginBottom: '24px' }}>
 
           {selectedContact ? (
-            <div style={{ border: '1px solid #d9d9d9', borderRadius: '8px', padding: '16px', position: 'relative' }}>
+            <Flex vertical gap={spacing.sm}>
+              <Title level={5} style={{ margin: '0' }}>Contact <span style={{ color: 'red' }}>*</span></Title>
               <FormItem name="contactId" hidden>
-                <Input />
-              </FormItem>
-
-              <Title level={5} style={{ margin: '0 0 8px 0' }}>
-                {selectedContact.name}
-              </Title>
-
-              <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                <Space>
-                  <PhoneOutlined style={{ color: '#1890ff' }} />
-                  <Text>{selectedContact.phone}</Text>
+                  <Input />
+                </FormItem>
+              <Space size="small">
+                <Text style={{ fontWeight: 'bold', width: '64px', color: colors.descriptionText, whiteSpace: 'nowrap' }}>Client</Text>
+                <Space size="small" style={{ flex: 1, flexWrap: 'wrap' }}>
+                  <Text ellipsis={{ tooltip: true }} style={{ maxWidth: '100%' }}>{selectedContact.name} </Text>
+                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }}/>
+                  <Text> {selectedContact.phone} </Text>
+                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }}  />
+                  <Text> {selectedContact.email} </Text>
                 </Space>
-
-                <Space>
-                  <MailOutlined style={{ color: '#1890ff' }} />
-                  <Text>{selectedContact.email}</Text>
-                </Space>
+                <Button
+                  type="text"
+                  danger
+                  icon={<CloseOutlined />}
+                  onClick={handleRemoveContact}
+                  style={{
+                  }}
+                />
               </Space>
-
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={handleRemoveContact}
-                style={{
-                  position: 'absolute',
-                  top: '12px',
-                  right: '12px'
-                }}
-              />
-            </div>
+            </Flex>
           ) : (
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
               <FormItem
                 name="contactId"
                 label="Contact"
-                rules={[{ required: true, message: 'Please select a contact' }]}
+                rules={contactValidation.contactSelectionRules}
                 style={{ flex: 1, marginBottom: '8px' }}
               >
                 <Select
@@ -185,16 +240,16 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                 />
               </FormItem>
               <Button
-                variant="text"
-                icon={<PlusOutlined />}
+                icon={isCreatingContact ? <Spin size="small" /> : <PlusOutlined />}
                 onClick={showCreateContactDrawer}
-                size="middle"
+                color="default"
+                variant="outlined"
+                style={{ width: 48, height: 48 }}
+                size="large"
+                disabled={isCreatingContact}
               />
             </div>
           )}
-
-
-
         </div>
 
         {/* Vehicle Details */}
@@ -207,7 +262,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <FormItem
                     name="customYear"
                     label="Year"
-                    required
+                    rules={[FormValidation.required('Please enter the vehicle year')]}
                     style={{ flex: 1 }}
                   >
                     <Input placeholder="Enter year" />
@@ -215,7 +270,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <FormItem
                     name="customMake"
                     label="Make"
-                    required
+                    rules={[FormValidation.required('Please enter the vehicle make')]}
                     style={{ flex: 1 }}
                   >
                     <Input placeholder="Enter make" />
@@ -224,14 +279,14 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                 <FormItem
                   name="customModel"
                   label="Model"
-                  required
+                  rules={[FormValidation.required('Please enter the vehicle model')]}
                 >
                   <Input placeholder="Enter model" />
                 </FormItem>
                 <FormItem
                   name="customVehicleType"
                   label="Vehicle Type"
-                  required
+                  rules={[FormValidation.required('Please enter the vehicle type')]}
                 >
                   <Input placeholder="Enter vehicle type" />
                 </FormItem>
@@ -243,7 +298,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                     <FormItem
                       name="year"
                       label="Year"
-                      rules={[{ required: true, message: 'Please select a year' }]}
+                      rules={[FormValidation.required('Please select a year')]}
                     >
                       <Select
                         placeholder="Select"
@@ -259,7 +314,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                     <FormItem
                       name="make"
                       label="Make"
-                      required
+                      rules={[FormValidation.required('Please select a make')]}
                     >
                       <Select
                         placeholder="Select"
@@ -277,7 +332,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                 <FormItem
                   name="model"
                   label="Model"
-                  required
+                  rules={[FormValidation.required('Please select a model')]}
                 >
                   <Select
                     placeholder="Select"
@@ -291,7 +346,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                 <FormItem
                   name="vehicleType"
                   label="Vehicle Type"
-                  required
+                  rules={[FormValidation.required('Please select a vehicle type')]}
                 >
                   <Select
                     placeholder="Select"
@@ -325,47 +380,57 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
 
       {/* Create Contact Drawer */}
       <CustomDrawer
-        title="Create New Contact"
+        title="Add Contact"
         open={createContactDrawerVisible}
         onClose={closeCreateContactDrawer}
         onSave={handleCreateContactSubmit}
         width={400}
         cancelText="Cancel"
-        saveText="Save"
+        saveText={isCreatingContact ? "Saving..." : "Save"}
+        disableSave={isCreatingContact} // Only disable during API call
       >
-        <Form layout="vertical">
+        <Paragraph>All fields are required except Note.</Paragraph>
+        <Form
+          layout="vertical"
+          form={contactForm}
+        >
           <FormItem
             label="Name"
             name="contactName"
-            required
+            rules={contactValidation.nameRules}
           >
-            <Input placeholder="Enter full name" />
+            <Input placeholder="Name" />
           </FormItem>
           <FormItem
             label="Email"
             name="contactEmail"
-            required
+            rules={contactValidation.emailRules}
           >
-            <Input placeholder="Enter email address" />
+            <Input placeholder="Email" />
           </FormItem>
           <FormItem
             label="Phone Number"
             name="contactPhone"
-            required
+            rules={contactValidation.phoneRules}
           >
-            <Input placeholder="Enter phone number" />
+            <Input placeholder="Phone Number" />
           </FormItem>
           <FormItem
             label="Additional Phone Number"
             name="contactAdditionalPhone"
+            rules={[
+              ...contactValidation.additionalPhoneRules.slice(0, 2), // Use the first two rules (required, phoneInternational)
+              { validator: validateDifferentPhone } // Add custom validator directly
+            ]}
           >
-            <Input placeholder="Enter additional phone number" />
+            <Input placeholder="Phone Number" />
           </FormItem>
           <FormItem
             label="Note"
             name="contactNote"
+            rules={contactValidation.noteRules}
           >
-            <TextArea placeholder="Enter notes" rows={3} />
+            <TextArea placeholder="Enter" rows={1} style={{ minHeight: 40 }} />
           </FormItem>
         </Form>
       </CustomDrawer>

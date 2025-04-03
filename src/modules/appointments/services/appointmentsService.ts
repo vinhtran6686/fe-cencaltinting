@@ -1,8 +1,6 @@
 import { apiService, ApiResponse } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
 
-// Interface chung cho API response đã được import từ apiService
-
 export interface AppointmentService {
   packageId: string;
   serviceIds: string[];

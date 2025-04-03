@@ -22,23 +22,17 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
   onNext,
   onBack,
 }) => {
-  // ===== DRAWER STATE =====
-  // Tách riêng state cho drawer để tránh re-render component chính
   const [drawerState, setDrawerState] = useState({
     visible: false,
     searchText: '',
     activeTag: 'All',
   });
   
-  // ===== SELECTED PACKAGES STATE =====
-  // State cho packages đã chọn
   const [selectedPackages, setSelectedPackages] = useState<ServicePackage[]>(
     formData.services || []
   );
   const [selectedActiveTag, setSelectedActiveTag] = useState('All');
   
-  // ===== TEMPORARY SELECTION STATE =====
-  // State cho việc chọn tạm thời trong drawer
   const [tempSelectedKeys, setTempSelectedKeys] = useState<React.Key[]>(
     formData.services?.map((service: ServicePackage) => service._id) || []
   );
@@ -46,8 +40,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
     formData.services || []
   );
 
-  // ===== DATA FETCHING =====
-  // Sử dụng useMemo để ổn định tham số truy vấn
   const queryParams = useMemo(() => ({
     search: drawerState.searchText,
     tag: drawerState.activeTag !== 'All' ? drawerState.activeTag : undefined
@@ -56,14 +48,10 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
   const { data: packagesResponse, isLoading: isLoadingPackages } = useServicePackages(queryParams);
   const { data: tagsResponse, isLoading: isLoadingTags } = useServiceTags();
   
-  
-  // Chuẩn bị danh sách tags
   const allServiceTags = useMemo(() => {
     return ['All', ...(tagsResponse?.data || [])];
   }, [tagsResponse]);
 
-  // ===== CALLBACK HANDLERS =====
-  // 1. Drawer handlers
   const openDrawer = useCallback(() => {
     setDrawerState(prev => ({ ...prev, visible: true }));
     setTempSelectedKeys(selectedPackages.map(pkg => pkg._id));
@@ -92,7 +80,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
     closeDrawer();
   }, [tempSelectedPackages, closeDrawer]);
   
-  // 2. Selected packages handlers
   const handleSelectedTagClick = useCallback((tag: string) => {
     setSelectedActiveTag(tag);
   }, []);
@@ -143,7 +130,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
     setSelectedPackages(prev => prev.filter(pkg => pkg._id !== record._id));
   }, []);
   
-  // 3. Navigation handlers
   const handleSubmit = useCallback(() => {
     updateFormData({
       services: selectedPackages,
@@ -151,8 +137,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
     onNext();
   }, [selectedPackages, updateFormData, onNext]);
   
-  // ===== DERIVED STATE =====
-  // Lọc các gói dịch vụ đã chọn dựa trên tag đang active
   const filteredSelectedPackages = useMemo(() => {
     if (selectedActiveTag === 'All') {
       return selectedPackages;
@@ -163,7 +147,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
     );
   }, [selectedPackages, selectedActiveTag]);
   
-  // ===== COMPONENT RENDER =====
   return (
     <div>
       <Row gutter={[16, 16]}>
@@ -182,7 +165,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
           </Card>
         </Col>
         
-        {/* Selected packages */}
         <Col span={24}>
           <Card title="Selected Packages">
             <div style={{ marginBottom: '16px' }}>
@@ -208,7 +190,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
         </Col>
       </Row>
       
-      {/* Package Selection Drawer */}
       <PackageSelectionDrawer 
         visible={drawerState.visible}
         packages={packagesResponse?.data || []} 
@@ -224,7 +205,6 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
         onConfirm={confirmSelection}
       />
       
-      {/* Navigation buttons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
         <Button onClick={onBack}>
           Back

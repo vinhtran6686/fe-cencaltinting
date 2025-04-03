@@ -3,6 +3,7 @@ import { Drawer as AntDrawer } from 'antd';
 import styled from '@emotion/styled';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button } from '../Button';
+import { colors } from '@/theme/tokens';
 
 export interface CustomDrawerProps extends Omit<React.ComponentProps<typeof AntDrawer>, 'onClose'> {
   title?: React.ReactNode;
@@ -13,45 +14,33 @@ export interface CustomDrawerProps extends Omit<React.ComponentProps<typeof AntD
   cancelText?: string;
   saveText?: string;
   width?: number | string;
+  disableSave?: boolean;
 }
 
 const StyledDrawer = styled(AntDrawer)`
-  &.ant-drawer {
-    .ant-drawer-mask {
-      backdrop-filter: blur(2px);
-    }
-    
-    .ant-drawer-content-wrapper {
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .ant-drawer-content {
-      background-color: rgba(15, 15, 15, 0.95);
-      color: #fff;
-    }
-    
-    .ant-drawer-header {
-      background-color: rgba(15, 15, 15, 0.95);
-      padding: 16px 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      
-      .ant-drawer-title {
-        color: #fff;
+  background-color: ${colors.bgTertiary} !important;
+  color: ${colors.textPrimary} !important;
+  & .ant-drawer-header { 
+      border-bottom: none !important; 
+      padding-bottom: 16px;
+      & .ant-drawer-title {
+        font-weight: 700 !important;
+        font-size: 20px !important;
       }
+  }
+  & .ant-drawer-body {
+    padding: 0 24px 24px;
+    .ant-typography {
+      color: ${colors.menuText} !important;
     }
-    
-    .ant-drawer-body {
-      padding: 24px;
-    }
-    
-    .ant-drawer-footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 16px 24px;
+  } 
+
+  & .ant-drawer-footer { 
+      border-top: none;
+      padding: 16px 24px 40px;
       display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      background-color: rgba(15, 15, 15, 0.95);
-    }
+      justify-content: space-between;
+      gap: 12px; 
   }
 `;
 
@@ -86,6 +75,7 @@ export const CustomDrawer: React.FC<CustomDrawerProps> = ({
   cancelText = 'Cancel',
   saveText = 'Save',
   width = 400,
+  disableSave = false,
   ...props
 }) => {
   const handleSave = () => {
@@ -99,10 +89,27 @@ export const CustomDrawer: React.FC<CustomDrawerProps> = ({
 
   const footer = (
     <>
-      <Button onClick={onClose} variant="secondary">
+      <Button
+        onClick={onClose}
+        color="default"
+        variant="outlined"
+        size='large'
+        style={{
+          height: 48,
+        }}
+      >
         {cancelText}
       </Button>
-      <Button onClick={handleSave} variant="primary">
+      <Button
+        onClick={handleSave}
+        variant="text"
+        size='large'
+        style={{
+          height: 48,
+        }}
+        disabled={disableSave || saveText.includes('Saving...')}
+        loading={saveText.includes('Saving...')}
+      >
         {saveText}
       </Button>
     </>

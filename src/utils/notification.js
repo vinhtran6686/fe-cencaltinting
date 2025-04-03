@@ -1,6 +1,6 @@
 import { notification } from 'antd';
 
-// Các loại thông báo
+// Notification types
 export const NotificationType = {
   SUCCESS: 'success',
   ERROR: 'error',
@@ -16,40 +16,40 @@ const getNotificationType = (statusCode) => {
   return NotificationType.INFO;
 };
 
-// Hiển thị thông báo
+// Show notification
 export const showNotification = (response) => {
-  // Nếu không có response hoặc statusCode, không hiển thị gì
+  // If there is no response or statusCode, do not show anything
   if (!response || !response.statusCode) return;
 
   const { statusCode, message, code } = response;
   const type = getNotificationType(statusCode);
   
-  // Xác định title dựa vào status code
-  let title = 'Thông báo';
-  if (type === NotificationType.SUCCESS) title = 'Thành công';
-  if (type === NotificationType.ERROR) title = 'Lỗi';
-  if (type === NotificationType.WARNING) title = 'Cảnh báo';
+  // Determine title based on status code
+  let title = 'Notification';
+  if (type === NotificationType.SUCCESS) title = 'Success';
+  if (type === NotificationType.ERROR) title = 'Error';
+  if (type === NotificationType.WARNING) title = 'Warning';
 
-  // Hiển thị notification
+  // Show notification
   notification[type]({
     message: title,
-    description: message || 'Đã xảy ra lỗi trong quá trình xử lý.',
-    duration: type === NotificationType.ERROR ? 0 : 4.5, // Notification lỗi không tự động biến mất
-    key: code || `${type}-${Date.now()}`, // Dùng code làm key nếu có, để tránh duplicate
+    description: message || 'An error occurred during processing.',
+    duration: type === NotificationType.ERROR ? 0 : 4.5, // Error notification does not disappear automatically
+    key: code || `${type}-${Date.now()}`, // Use code as key if available to avoid duplicates
   });
 };
 
 // Shorthand functions
 export const showSuccessNotification = (message) => {
   notification.success({
-    message: 'Thành công',
+    message: 'Success',
     description: message,
   });
 };
 
 export const showErrorNotification = (message) => {
   notification.error({
-    message: 'Lỗi',
+    message: 'Error',
     description: message,
     duration: 0,
   });
@@ -57,14 +57,14 @@ export const showErrorNotification = (message) => {
 
 export const showWarningNotification = (message) => {
   notification.warning({
-    message: 'Cảnh báo',
+    message: 'Warning',
     description: message,
   });
 };
 
 export const showInfoNotification = (message) => {
   notification.info({
-    message: 'Thông báo',
+    message: 'Notification',
     description: message,
   });
 }; 
