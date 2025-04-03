@@ -1,8 +1,9 @@
 import React from 'react'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
-import { StyledHeader } from './Header.styles'
-import { HeaderTitle, BackButton } from '../../common'
+import { BackButton, StyledHeader } from './Header.styles'
+import { HeaderTitle } from '@/components/common'
+
 
 interface HeaderProps {
   title?: string
@@ -17,15 +18,16 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
   const pageTitle = title || getPageTitle(router.pathname)
 
-  const showBackButton = router.pathname !== '/' && !router.pathname.match(/^\/dashboard\/?$/) 
+  const showBackButton = router.pathname !== '/' && !router.pathname.match(/^\/dashboard\/?$/)
 
   return (
     <StyledHeader>
       {showBackButton && (
-        <BackButton 
+        <BackButton
+          color="default"
+          variant="filled"
           icon={<ArrowLeftOutlined />}
           onClick={handleBack}
-          type="default"
         />
       )}
       <HeaderTitle level={4} withoutBackButton={!showBackButton}>
@@ -81,5 +83,5 @@ const getSingular = (route: string): string => {
   return singulars[route] || route
 }
 
-export default Header 
+export default Header
 

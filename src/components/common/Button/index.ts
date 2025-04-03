@@ -1,6 +1,6 @@
 import ButtonComponents from './Button';
 
-export const { Button, IconButton, BackButton } = ButtonComponents;
+export const { Button } = ButtonComponents;
 
 export type { ButtonProps } from './Button';
 

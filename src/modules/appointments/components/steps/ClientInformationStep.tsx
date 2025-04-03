@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Divider, Row, Col, Spin, Flex } from 'antd';
 import { Typography as AntTypography } from 'antd';
-import { Button, Card } from '@/components/common';
+import { Button } from '@/components/common/Button';
+import { Card } from '@/components/common/Card';
 import { Form, FormItem } from '@/components/common/Form';
 import { Input, TextArea } from '@/components/common/Input';
 import { CustomDrawer } from '@/components/common/Drawer';
@@ -41,7 +42,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
   const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
 
-  useEffect(() => { 
+  useEffect(() => {
     if (contactsData?.data && formData.contactId) {
       const contact = contactsData.data.find((c: any) => c._id === formData.contactId);
       if (contact) {
@@ -184,10 +185,10 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                 />
               </FormItem>
               <Button
+                variant="text"
                 icon={<PlusOutlined />}
                 onClick={showCreateContactDrawer}
-                style={{ marginTop: '4px' }}
-                ghost
+                size="middle"
               />
             </div>
           )}
