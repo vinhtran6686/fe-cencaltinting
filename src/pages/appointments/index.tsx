@@ -18,7 +18,7 @@ const statusColors = {
 const AppointmentsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const router = useRouter();
-  
+
   const { data, isLoading, isError, error } = useAppointments({
     status: activeTab !== 'all' ? activeTab : undefined
   });
@@ -52,7 +52,7 @@ const AppointmentsPage: React.FC = () => {
 
     return (
       <Row gutter={[16, 16]}>
-        {appointments.length > 0 ? (
+        {/* {appointments.length > 0 ? (
           appointments.map((appointment: AppointmentResponse) => (
             <Col span={24} key={appointment._id}>
               <AppointmentCard appointment={appointment} onViewDetails={() => handleViewAppointment(appointment._id)} />
@@ -66,7 +66,14 @@ const AppointmentsPage: React.FC = () => {
               </div>
             </Card>
           </Col>
-        )}
+        )} */}
+        <Col span={24}>
+          <Card>
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              Appointment list is not available yet
+            </div>
+          </Card>
+        </Col>
       </Row>
     );
   };
@@ -76,15 +83,15 @@ const AppointmentsPage: React.FC = () => {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title level={2}>Appointments</Title>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={handleCreateAppointment}
           >
             Create Appointment
           </Button>
         </div>
-        
+
         {renderContent()}
       </Space>
     </div>
@@ -109,8 +116,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDe
   };
 
   return (
-    <Card 
-      hoverable 
+    <Card
+      hoverable
       onClick={onViewDetails}
       style={{ width: '100%' }}
     >
@@ -119,7 +126,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDe
           <Title level={4} style={{ marginBottom: '8px' }}>
             {contact.name}
           </Title>
-          
+
           <Space direction="vertical" size="small" style={{ marginBottom: '16px' }}>
             <Space>
               <PhoneOutlined />
@@ -137,12 +144,12 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDe
             )}
           </Space>
         </div>
-        
+
         <Tag color={statusColors[appointment.status as keyof typeof statusColors] || 'default'} style={{ fontSize: '14px', padding: '2px 10px' }}>
           {appointment.status || 'Unknown'}
         </Tag>
       </div>
-      
+
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
         <Space>
           <CalendarOutlined />
@@ -151,10 +158,10 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDe
             {appointment.endDate ? ` - ${new Date(appointment.endDate).toLocaleDateString()}` : ''}
           </Text>
         </Space>
-        
-        <Button 
-          type="primary" 
-          size="small" 
+
+        <Button
+          type="primary"
+          size="small"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails();
