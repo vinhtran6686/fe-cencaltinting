@@ -95,3 +95,9 @@ npm run start
 # or
 yarn start
 ```
+
+## 📚 Documentation
+
+For detailed technical information about the project architecture and development standards, please refer to:
+
+- [Technical Design Document](./documents/Technical_Design_Document.md) - Comprehensive guide to the project's module-centric architecture, coding standards, and best practices
