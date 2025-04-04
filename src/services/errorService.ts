@@ -45,32 +45,7 @@ const logToConsole = (error: ApiError): void => {
   console.log('Original Error:', error.originalError);
   console.groupEnd();
 };
-
-// Log errors to third party service (e.g. Sentry)
-const logToSentry = (error: ApiError): void => {
-  // Simulate sending error to Sentry - in reality you would integrate the Sentry SDK
-  if (typeof window !== 'undefined' && (window as Window & { Sentry?: unknown }).Sentry) {
-    const Sentry = (window as Window & { Sentry: Record<string, unknown> }).Sentry;
-    
-    Sentry.withScope((scope: Record<string, unknown>) => {
-      scope.setLevel(error.type === 'server' ? 'error' : 'warning');
-      
-      scope.setTags({
-        type: error.type,
-        status: error.status
-      });
-      
-      scope.setExtras({
-        url: error.url,
-        method: error.method,
-        data: error.data,
-        statusText: error.statusText
-      });
-      
-      Sentry.captureException(error.originalError || new Error(error.message));
-    });
-  }
-};
+ 
 
 // Log error to service
 export const logErrorToService = (error: ApiError): void => {
@@ -84,12 +59,7 @@ export const logErrorToService = (error: ApiError): void => {
   if (process.env.NODE_ENV === 'development') {
     logToConsole(enhancedError);
   }
-  
-  // Log to Sentry in production environment
-  if (process.env.NODE_ENV === 'production') {
-    logToSentry(enhancedError);
-  }
-  
+   
   // Send error to backend for check
   // sendErrorToBackend(enhancedError);
 };

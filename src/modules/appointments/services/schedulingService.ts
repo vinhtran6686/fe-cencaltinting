@@ -1,6 +1,5 @@
-import { apiService } from '../../../services/apiService';
+import { apiService, ApiResponse } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
-import { ApiResponse } from './appointmentsService';
 
 export interface AvailableSlot {
   startTime: string;
@@ -15,35 +14,28 @@ export interface EndTimeCalculation {
   totalDuration: number;
 }
 
-export interface AvailableSlotsData {
-  data: AvailableSlot[];
-}
-
-export interface EndTimeCalculationData {
-  data: EndTimeCalculation;
-}
+export type AvailableSlotsResponse = AvailableSlot[];
+export type EndTimeCalculationResponse = EndTimeCalculation;
 
 export class SchedulingService {
   static async getAvailableSlots(params: {
     date: string;
     serviceIds: string[];
-  }): Promise<AvailableSlotsData> {
-    const response = await apiService.get<ApiResponse<AvailableSlotsData>>(
+  }): Promise<AvailableSlotsResponse> {
+    return await apiService.get<AvailableSlotsResponse>(
       API_ENDPOINTS.SCHEDULING.AVAILABLE_SLOTS,
       params
     );
-    return response.data.data;
   }
 
   static async calculateEndTime(params: {
     startDate: string;
     startTime: string;
     serviceIds: string[];
-  }): Promise<EndTimeCalculationData> {
-    const response = await apiService.get<ApiResponse<EndTimeCalculationData>>(
+  }): Promise<EndTimeCalculationResponse> {
+    return await apiService.get<EndTimeCalculationResponse>(
       API_ENDPOINTS.SCHEDULING.CALCULATE_END_TIME,
       params
     );
-    return response.data.data;
   }
 } 

@@ -88,8 +88,8 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
   ) || 0;
   
   // Calculate estimated end date/time
-  const estimatedEndDateTime = endTimeData?.data ? 
-    `${endTimeData.data.endDate} ${endTimeData.data.endTime}` : 
+  const estimatedEndDateTime = endTimeData ? 
+    `${endTimeData.endDate} ${endTimeData.endTime}` : 
     null;
   
   // Handle date selection
@@ -366,7 +366,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                   gap: '8px',
                   marginTop: '12px'
                 }}>
-                  {slotsData?.data.map((slot, index) => (
+                  {slotsData?.map((slot, index) => (
                     <div
                       key={index}
                       style={{
@@ -403,7 +403,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                 borderRadius: '4px',
                 border: '1px solid #91d5ff'
               }}>
-                <Text strong>Estimated End Date:</Text> {dayjs(`${endTimeData?.data.endDate} ${endTimeData?.data.endTime}`).format('MMMM D, YYYY - h:mm A')}
+                <Text strong>Estimated End Date:</Text> {dayjs(`${endTimeData?.endDate} ${endTimeData?.endTime}`).format('MMMM D, YYYY - h:mm A')}
               </div>
             )}
           </Card>
@@ -445,7 +445,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                               value={service.technicianId}
                               onChange={(value) => handleTechnicianChange(value, index)}
                             >
-                              {techniciansData?.data.map(tech => (
+                              {techniciansData?.map(tech => (
                                 <Option key={tech._id} value={tech._id}>{tech.name}</Option>
                               ))}
                             </Select>
@@ -472,7 +472,7 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
                           {isLoadingEndTime ? (
                             <Spin />
                           ) : estimatedEndDateTime ? (
-                            dayjs(`${endTimeData?.data.endDate} ${endTimeData?.data.endTime}`).format('MMMM D, YYYY - h:mm A')
+                            dayjs(`${endTimeData?.endDate} ${endTimeData?.endTime}`).format('MMMM D, YYYY - h:mm A')
                           ) : (
                             'Not calculated yet'
                           )}

@@ -5,23 +5,19 @@ const API_ENDPOINT = '/appointments';
 
 export const appointmentsService = {
   getAll: async (): Promise<Appointment[]> => {
-    const response = await apiService.get<Appointment[]>(API_ENDPOINT);
-    return response.data;
+    return await apiService.get<Appointment[]>(API_ENDPOINT);
   },
   
   getById: async (id: string): Promise<Appointment> => {
-    const response = await apiService.get<Appointment>(`${API_ENDPOINT}/${id}`);
-    return response.data;
+    return await apiService.get<Appointment>(`${API_ENDPOINT}/${id}`);
   },
   
   create: async (appointment: Omit<Appointment, 'id'>): Promise<Appointment> => {
-    const response = await apiService.post<Appointment>(API_ENDPOINT, appointment);
-    return response.data;
+    return await apiService.post<Appointment>(API_ENDPOINT, appointment);
   },
   
   update: async (id: string, changes: Partial<Appointment>): Promise<Appointment> => {
-    const response = await apiService.patch<Appointment>(`${API_ENDPOINT}/${id}`, changes);
-    return response.data;
+    return await apiService.patch<Appointment>(`${API_ENDPOINT}/${id}`, changes);
   },
   
   delete: async (id: string): Promise<void> => {

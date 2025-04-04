@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { 
   TechniciansService, 
-  TechniciansData,
-  TechnicianAvailabilityData
+  TechniciansResponse,
+  TechnicianAvailabilityResponse
 } from '../services/techniciansService';
 
 export const useTechnicians = () => {
-  return useQuery<TechniciansData, Error>({
+  return useQuery<TechniciansResponse, Error>({
     queryKey: ['technicians'],
     queryFn: () => TechniciansService.getTechnicians(),
   });
@@ -19,7 +19,7 @@ export const useTechnicianAvailability = (
     endDate: string;
   }
 ) => {
-  return useQuery<TechnicianAvailabilityData, Error>({
+  return useQuery<TechnicianAvailabilityResponse, Error>({
     queryKey: ['technician', 'availability', id, params],
     queryFn: () => TechniciansService.getTechnicianAvailability(id, params),
     enabled: !!id && !!params.startDate && !!params.endDate,

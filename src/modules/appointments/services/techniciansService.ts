@@ -20,21 +20,14 @@ export interface TechnicianAvailability {
   }[];
 }
 
-export interface TechniciansData {
-  data: Technician[];
-  meta: MetaData;
-}
-
-export interface TechnicianAvailabilityData {
-  data: TechnicianAvailability;
-}
+export type TechniciansResponse = Technician[];
+export type TechnicianAvailabilityResponse = TechnicianAvailability;
 
 export class TechniciansService {
-  static async getTechnicians(): Promise<TechniciansData> {
-    const response = await apiService.get<TechniciansData>(
+  static async getTechnicians(): Promise<TechniciansResponse> {
+    return await apiService.get<TechniciansResponse>(
       API_ENDPOINTS.TECHNICIANS.LIST
     );
-    return response;
   }
 
   static async getTechnicianAvailability(
@@ -43,11 +36,10 @@ export class TechniciansService {
       startDate: string;
       endDate: string;
     }
-  ): Promise<TechnicianAvailabilityData> {
-    const response = await apiService.get<TechnicianAvailabilityData>(
+  ): Promise<TechnicianAvailabilityResponse> {
+    return await apiService.get<TechnicianAvailabilityResponse>(
       API_ENDPOINTS.TECHNICIANS.AVAILABILITY(id),
       params
     );
-    return response;
   }
 } 
