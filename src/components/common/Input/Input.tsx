@@ -3,7 +3,7 @@ import { Input as AntInput } from 'antd';
 import styled from '@emotion/styled';
 import { InputProps as AntInputProps } from 'antd/es/input';
 import { TextAreaProps as AntTextAreaProps } from 'antd/es/input/TextArea';
-import { colors, spacing, fontSizes, borderRadius } from '../../../theme/tokens';
+import { colors, borderRadius } from '../../../theme/tokens';
 
 /**
  * Extended Input Props that include our custom properties

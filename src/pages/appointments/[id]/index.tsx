@@ -1,11 +1,10 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Card, Typography, Descriptions, Button, Spin, Tag, Divider, Row, Col, Space, Avatar } from 'antd';
+import { Card, Typography, Descriptions, Button, Spin, Tag, Row, Col, Space, Avatar } from 'antd';
 import { 
   ArrowLeftOutlined, 
   CalendarOutlined, 
   ClockCircleOutlined, 
-  CarOutlined,
   UserOutlined,
   MailOutlined,
   PhoneOutlined

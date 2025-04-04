@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { colors, spacing, fontSizes, fontFamily } from './tokens';
+import { colors, spacing, fontFamily } from './tokens';
 
 // Global style overrides to be used with Emotion's Global component
 const globalStyles = css`

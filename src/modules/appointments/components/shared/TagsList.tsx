@@ -24,4 +24,6 @@ const TagsList = memo(({ tags, activeTag, onTagClick }: TagsListProps) => {
   );
 });
 
+TagsList.displayName = 'TagsList';
+
 export default TagsList;

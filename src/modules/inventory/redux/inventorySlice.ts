@@ -13,8 +13,6 @@ const inventorySlice = createSlice({
   initialState,
   reducers: {
   },
-  extraReducers: (builder) => {
-  },
 });
 
 export default inventorySlice.reducer; 

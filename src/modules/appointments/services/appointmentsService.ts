@@ -1,4 +1,4 @@
-import { apiService, ApiResponse } from '../../../services/apiService';
+import { apiService } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api';
 
 export interface AppointmentService {

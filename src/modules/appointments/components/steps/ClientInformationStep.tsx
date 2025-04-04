@@ -56,10 +56,10 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
 
   // Fetch vehicle data
-  const { data: yearsData, isLoading: isLoadingYears, refetch: refetchYears } = useVehicleYears();
-  const { data: makesData, isLoading: isLoadingMakes, refetch: refetchMakes } = useVehicleMakes();
-  const { data: modelsData, isLoading: isLoadingModels, refetch: refetchModels } = useVehicleModels();
-  const { data: typesData, isLoading: isLoadingTypes, refetch: refetchTypes } = useVehicleTypes();
+  const { data: yearsData, isLoading: isLoadingYears } = useVehicleYears();
+  const { data: makesData, isLoading: isLoadingMakes } = useVehicleMakes();
+  const { data: modelsData, isLoading: isLoadingModels } = useVehicleModels();
+  const { data: typesData, isLoading: isLoadingTypes } = useVehicleTypes();
 
   useEffect(() => {
     if (contactsData?.data && formData.contactId) {
@@ -303,7 +303,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       <Select
                         placeholder="Select"
                         loading={isLoadingYears}
-                        options={(yearsData || []).map((year: VehicleYear, index: number) => ({
+                        options={(yearsData || []).map((year: VehicleYear) => ({
                           label: year.value,
                           value: year.id
                         }))}
@@ -319,7 +319,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                       <Select
                         placeholder="Select"
                         loading={isLoadingMakes}
-                        options={(makesData || []).map((make: VehicleMake, index: number) => {
+                        options={(makesData || []).map((make: VehicleMake) => {
                           return {
                             label: make.value,
                             value: make.id
@@ -337,7 +337,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <Select
                     placeholder="Select"
                     loading={isLoadingModels}
-                    options={(modelsData || []).map((model: VehicleModel, index: number) => ({
+                    options={(modelsData || []).map((model: VehicleModel) => ({
                       label: model.value,
                       value: model.id
                     }))}
@@ -351,7 +351,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   <Select
                     placeholder="Select"
                     loading={isLoadingTypes}
-                    options={(typesData || []).map((type: VehicleType, index: number) => ({
+                    options={(typesData || []).map((type: VehicleType) => ({
                       label: type.value,
                       value: type.id
                     }))}

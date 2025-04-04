@@ -38,4 +38,6 @@ const ServiceDetailsTable = memo(({ services }: ServiceDetailsTableProps) => {
   );
 });
 
+ServiceDetailsTable.displayName = 'ServiceDetailsTable';
+
 export default ServiceDetailsTable;

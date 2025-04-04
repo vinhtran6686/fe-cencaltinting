@@ -88,4 +88,6 @@ const PackageSelectionDrawer = memo(({
   );
 });
 
+PackageSelectionDrawer.displayName = 'PackageSelectionDrawer';
+
 export default PackageSelectionDrawer;

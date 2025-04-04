@@ -74,4 +74,6 @@ const PackageSelectionTable = memo(({
   );
 });
 
+PackageSelectionTable.displayName = 'PackageSelectionTable';
+
 export default PackageSelectionTable;

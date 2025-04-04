@@ -13,8 +13,6 @@ const proposalSlice = createSlice({
   initialState,
   reducers: {
   },
-  extraReducers: (builder) => {
-  },
 });
 
 export default proposalSlice.reducer;

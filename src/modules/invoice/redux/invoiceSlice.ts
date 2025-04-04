@@ -13,8 +13,6 @@ const invoiceSlice = createSlice({
   initialState,
   reducers: {
   },
-  extraReducers: (builder) => {
-  },
 });
 
 export default invoiceSlice.reducer;

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Checkbox, Button } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Table, Button } from 'antd';
 import styled from '@emotion/styled';
 import { DownOutlined, RightOutlined } from '@ant-design/icons';
 import { TableProps } from 'antd/es/table';
@@ -99,15 +99,15 @@ export const NestedTable = <RecordType extends object = any>({
   }, [propSelectedRowKeys]);
   
   // Get row key helper
-  const getRecordKey = (record: RecordType): React.Key => {
+  const getRecordKey = useCallback((record: RecordType): React.Key => {
     if (typeof rowKey === 'function') {
       return rowKey(record);
     }
     return (record as any)[rowKey as string];
-  };
+  }, [rowKey]);
   
   // Initialize nested selection state
-  const initializeNestedSelection = (data: readonly RecordType[]) => {
+  const initializeNestedSelection = useCallback((data: readonly RecordType[]) => {
     const newNestedSelection: NestedRowSelectionState = {};
     
     const processRecords = (records: readonly RecordType[], parentKey?: string) => {
@@ -131,14 +131,14 @@ export const NestedTable = <RecordType extends object = any>({
     
     processRecords(data);
     setNestedSelection(newNestedSelection);
-  };
+  }, [getRecordKey]);
   
   // Initialize on data change
   useEffect(() => {
     if (props.dataSource) {
       initializeNestedSelection(props.dataSource);
     }
-  }, [props.dataSource]);
+  }, [props.dataSource, initializeNestedSelection]);
   
   // Handle row expansion
   const handleExpand = (expanded: boolean, record: any) => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import type { AppProps } from 'next/app'
 import { ConfigProvider, App as AntdApp } from 'antd'
 import { Provider } from 'react-redux'

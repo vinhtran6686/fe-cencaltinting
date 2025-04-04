@@ -1,6 +1,4 @@
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useAppSelector } from '../../../store';
 import { loadDummyUser } from '../../../store/slices/authSlice';
 import { useAppDispatch } from '../../../store';
 
@@ -9,9 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const dispatch = useAppDispatch(); 
 
   useEffect(() => {
     // load dummy user

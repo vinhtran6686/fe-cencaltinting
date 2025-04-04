@@ -13,8 +13,6 @@ const vehicleRulesSlice = createSlice({
   initialState,
   reducers: {
   },
-  extraReducers: (builder) => {
-  },
 });
 
 export default vehicleRulesSlice.reducer;

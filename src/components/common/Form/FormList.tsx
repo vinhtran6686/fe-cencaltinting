@@ -74,9 +74,10 @@ export const FormList: React.FC<FormListProps> = ({
     <StyledFormListWrapper>
       <Form.List name={name} {...props}>
         {(fields, operation, { errors }) => {
-          React.useEffect(() => {
-            onItemsChange?.(fields.length);
-          }, [fields.length]);
+          // Call onItemsChange whenever fields.length changes
+          if (onItemsChange) {
+            onItemsChange(fields.length);
+          }
           
           return (
             <React.Fragment>

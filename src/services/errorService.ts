@@ -15,10 +15,10 @@ export enum ErrorType {
 export interface ApiError {
   status?: number;
   statusText?: string;
-  data?: any;
+  data?: unknown;
   message: string;
   type: ErrorType | string;
-  originalError?: any;
+  originalError?: unknown;
   timestamp?: number;
   url?: string;
   method?: string;
@@ -49,10 +49,10 @@ const logToConsole = (error: ApiError): void => {
 // Log errors to third party service (e.g. Sentry)
 const logToSentry = (error: ApiError): void => {
   // Simulate sending error to Sentry - in reality you would integrate the Sentry SDK
-  if (typeof window !== 'undefined' && (window as any).Sentry) {
-    const Sentry = (window as any).Sentry;
+  if (typeof window !== 'undefined' && (window as Window & { Sentry?: unknown }).Sentry) {
+    const Sentry = (window as Window & { Sentry: Record<string, unknown> }).Sentry;
     
-    Sentry.withScope((scope: any) => {
+    Sentry.withScope((scope: Record<string, unknown>) => {
       scope.setLevel(error.type === 'server' ? 'error' : 'warning');
       
       scope.setTags({

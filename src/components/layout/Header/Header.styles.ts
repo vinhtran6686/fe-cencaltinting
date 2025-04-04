@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
-import { colors, spacing, fontSizes, shadows } from '../../../theme/tokens';
+import { colors, spacing } from '../../../theme/tokens';
 import { Button } from '@/components/common/Button';
 const { Header: AntHeader } = Layout;
 

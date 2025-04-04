@@ -13,8 +13,6 @@ const servicesSlice = createSlice({
   initialState,
   reducers: {
   },
-  extraReducers: (builder) => {
-  },
 });
 
 export default servicesSlice.reducer; 

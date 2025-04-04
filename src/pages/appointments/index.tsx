@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
-import { Typography, Space, Button, Tag, Spin, Row, Col, Card } from 'antd';
-import { PlusOutlined, CalendarOutlined, PhoneOutlined, MailOutlined, MessageOutlined } from '@ant-design/icons';
+import { Typography, Space, Button, Spin, Row, Col, Card } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
-import { useAppointments, useContactDetails } from '../../modules/appointments/hooks';
-import { AppointmentResponse } from '../../modules/appointments/services/appointmentsService';
-import { ContactResponse } from '../../modules/appointments/services/contactsService';
+import { useAppointments } from '../../modules/appointments/hooks';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const statusColors = {
-  'scheduled': 'blue',
-  'in-progress': 'orange',
-  'completed': 'green',
-  'canceled': 'red'
-};
 
 const AppointmentsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [activeTab] = useState<string>('all');
   const router = useRouter();
 
-  const { data, isLoading, isError, error } = useAppointments({
+  const { isLoading, isError, error } = useAppointments({
     status: activeTab !== 'all' ? activeTab : undefined
   });
 
@@ -27,9 +19,6 @@ const AppointmentsPage: React.FC = () => {
     router.push('/appointments/create');
   };
 
-  const handleViewAppointment = (id: string) => {
-    router.push(`/appointments/${id}`);
-  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -48,7 +37,6 @@ const AppointmentsPage: React.FC = () => {
       );
     }
 
-    const appointments = data?.data || [];
 
     return (
       <Row gutter={[16, 16]}>
@@ -98,80 +86,6 @@ const AppointmentsPage: React.FC = () => {
   );
 };
 
-// Client card component
-interface AppointmentCardProps {
-  appointment: AppointmentResponse;
-  onViewDetails: () => void;
-}
 
-const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onViewDetails }) => {
-  const { data: contactData } = useContactDetails(appointment.contactId);
-  const contact: ContactResponse = contactData || {
-    _id: '',
-    name: 'Not specified',
-    email: 'Not specified',
-    phone: 'Not specified',
-    createdAt: '',
-    updatedAt: ''
-  };
-
-  return (
-    <Card
-      hoverable
-      onClick={onViewDetails}
-      style={{ width: '100%' }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <Title level={4} style={{ marginBottom: '8px' }}>
-            {contact.name}
-          </Title>
-
-          <Space direction="vertical" size="small" style={{ marginBottom: '16px' }}>
-            <Space>
-              <PhoneOutlined />
-              <Text>{contact.phone}</Text>
-            </Space>
-            <Space>
-              <MailOutlined />
-              <Text>{contact.email}</Text>
-            </Space>
-            {appointment.notes && (
-              <Space>
-                <MessageOutlined />
-                <Text>{appointment.notes}</Text>
-              </Space>
-            )}
-          </Space>
-        </div>
-
-        <Tag color={statusColors[appointment.status as keyof typeof statusColors] || 'default'} style={{ fontSize: '14px', padding: '2px 10px' }}>
-          {appointment.status || 'Unknown'}
-        </Tag>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-        <Space>
-          <CalendarOutlined />
-          <Text>
-            {appointment.startDate ? new Date(appointment.startDate).toLocaleDateString() : 'Not specified'}
-            {appointment.endDate ? ` - ${new Date(appointment.endDate).toLocaleDateString()}` : ''}
-          </Text>
-        </Space>
-
-        <Button
-          type="primary"
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onViewDetails();
-          }}
-        >
-          View Details
-        </Button>
-      </div>
-    </Card>
-  );
-};
 
 export default AppointmentsPage;

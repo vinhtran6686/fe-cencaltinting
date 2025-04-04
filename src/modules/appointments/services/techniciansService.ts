@@ -1,4 +1,4 @@
-import { ApiResponse, apiService } from '../../../services/apiService';
+import { apiService } from '../../../services/apiService';
 import { API_ENDPOINTS } from '../../../constants/api'; 
 import { MetaData } from './appointmentsService';
 

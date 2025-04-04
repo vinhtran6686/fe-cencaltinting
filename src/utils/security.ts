@@ -1,4 +1,4 @@
-import DOMPurify from 'dompurify';  
+import DOMPurify from 'dompurify';
 
 /**
  * Sanitize HTML content to prevent XSS
@@ -13,32 +13,32 @@ export const sanitizeHtml = (content: string): string => {
 /**
  * Sanitize request data before sending
  */
-export const sanitizeRequestData = (data: any): any => {
+export const sanitizeRequestData = <T>(data: T): T => {
   if (!data) return data;
-  
+
   // If it's a string that might contain HTML, sanitize it
   if (typeof data === 'string') {
-    return sanitizeHtml(data);
+    return sanitizeHtml(data) as unknown as T;
   }
-  
+
   // If it's an array, sanitize each element
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeRequestData(item));
+    return data.map(item => sanitizeRequestData(item)) as unknown as T;
   }
-  
+
   // If it's an object, sanitize each property
   if (typeof data === 'object' && data !== null) {
-    const sanitizedObj: Record<string, any> = {};
-    
+    const sanitizedObj: Record<string, unknown> = {};
+
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        sanitizedObj[key] = sanitizeRequestData(data[key]);
+        sanitizedObj[key] = sanitizeRequestData((data as Record<string, unknown>)[key]);
       }
     }
-    
-    return sanitizedObj;
+
+    return sanitizedObj as unknown as T;
   }
-  
+
   // Keep other primitive types as is
   return data;
 };
@@ -46,32 +46,32 @@ export const sanitizeRequestData = (data: any): any => {
 /**
  * Sanitize response data before using
  */
-export const sanitizeResponseData = (data: any): any => {
+export const sanitizeResponseData = <T>(data: T): T => {
   if (!data) return data;
-  
+
   // If it's a string that might contain HTML, sanitize it
   if (typeof data === 'string' && (data.includes('<') || data.includes('>'))) {
-    return sanitizeHtml(data);
+    return sanitizeHtml(data) as unknown as T;
   }
-  
+
   // If it's an array, sanitize each element
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeResponseData(item));
+    return data.map(item => sanitizeResponseData(item)) as unknown as T;
   }
-  
+
   // If it's an object, sanitize each property
   if (typeof data === 'object' && data !== null) {
-    const sanitizedObj: Record<string, any> = {};
-    
+    const sanitizedObj: Record<string, unknown> = {};
+
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        sanitizedObj[key] = sanitizeResponseData(data[key]);
+        sanitizedObj[key] = sanitizeResponseData((data as Record<string, unknown>)[key]);
       }
     }
-    
-    return sanitizedObj;
+
+    return sanitizedObj as unknown as T;
   }
-  
+
   // Keep other primitive types as is
   return data;
 };
@@ -82,11 +82,11 @@ export const sanitizeResponseData = (data: any): any => {
 export const sanitizeUrl = (url: string): string => {
   // Check if URL is relative or belongs to the same domain
   const isSafeUrl = /^(\/|https?:\/\/[^/]+\.yourdomain\.com)/i.test(url);
-  
+
   if (!isSafeUrl) {
     return '/'; // Return home page if URL is not safe
   }
-  
+
   return url;
 };
 
@@ -106,6 +106,7 @@ export const decryptSensitiveData = (encryptedData: string): string => {
   try {
     return atob(encryptedData);
   } catch (error) {
-    return '';
+    console.error('Decryption failed:', error);
   }
+  return '';
 };

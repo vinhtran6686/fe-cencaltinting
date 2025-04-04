@@ -1,8 +1,7 @@
 import React from 'react';
-import { Card, Typography, theme } from 'antd';
+import { Card, theme } from 'antd';
 import styled from '@emotion/styled';
 
-const { Title } = Typography;
 const { useToken } = theme;
 
 interface ThemeProps {

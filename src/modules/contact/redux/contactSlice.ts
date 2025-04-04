@@ -13,8 +13,6 @@ const contactSlice = createSlice({
   initialState,
   reducers: { 
   },
-  extraReducers: (builder) => { 
-  },
 });
  
 export default contactSlice.reducer;

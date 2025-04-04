@@ -7,7 +7,7 @@ import { useNotification } from '../components/providers/NotificationProvider';
  * @param options Configuration options for handling the response
  */
 export const handleApiSuccess = (
-  response: any,
+  response: unknown,
   options: {
     showSuccessNotification?: boolean;
     successMessage?: string;
@@ -15,16 +15,16 @@ export const handleApiSuccess = (
   } = {}
 ) => {
   const { showSuccessNotification = false, successMessage, suppressErrorNotification = false } = options;
+  const typedResponse = response as { success?: boolean; message?: string; code?: string; statusCode?: number };
 
   // Handle error responses that have 200 OK status but indicate failure in the response body
-  if (response?.success === false && !suppressErrorNotification) {
-    const errorMessage = response?.message || 'Operation failed';
-    const errorCode = response?.code || '';
-    const statusCode = response?.statusCode || 400;
+  if (typedResponse?.success === false && !suppressErrorNotification) {
+    const errorMessage = typedResponse?.message || 'Operation failed';
+    const statusCode = typedResponse?.statusCode || 400;
     
     notificationService.showApiError({
       status: statusCode,
-      data: response,
+      data: typedResponse,
       message: errorMessage,
       type: statusCode >= 500 ? 'server' : 'client'
     });
@@ -35,7 +35,7 @@ export const handleApiSuccess = (
   // Handle successful responses
   if (showSuccessNotification) {
     const title = 'Success';
-    const message = successMessage || response?.message || 'Operation completed successfully';
+    const message = successMessage || typedResponse?.message || 'Operation completed successfully';
     notificationService.showSuccess(title, message);
   }
   
@@ -50,7 +50,7 @@ export const useHandleApiSuccess = () => {
   const notification = useNotification();
   
   return (
-    response: any,
+    response: unknown,
     options: {
       showSuccessNotification?: boolean;
       successMessage?: string;
@@ -58,16 +58,16 @@ export const useHandleApiSuccess = () => {
     } = {}
   ) => {
     const { showSuccessNotification = false, successMessage, suppressErrorNotification = false } = options;
+    const typedResponse = response as { success?: boolean; message?: string; code?: string; statusCode?: number };
 
     // Handle error responses that have 200 OK status but indicate failure in the response body
-    if (response?.success === false && !suppressErrorNotification) {
-      const errorMessage = response?.message || 'Operation failed';
-      const errorCode = response?.code || '';
-      const statusCode = response?.statusCode || 400;
+    if (typedResponse?.success === false && !suppressErrorNotification) {
+      const errorMessage = typedResponse?.message || 'Operation failed';
+      const statusCode = typedResponse?.statusCode || 400;
       
       notification.showApiError({
         status: statusCode,
-        data: response,
+        data: typedResponse,
         message: errorMessage,
         type: statusCode >= 500 ? 'server' : 'client'
       });
@@ -78,7 +78,7 @@ export const useHandleApiSuccess = () => {
     // Handle successful responses
     if (showSuccessNotification) {
       const title = 'Success';
-      const message = successMessage || response?.message || 'Operation completed successfully';
+      const message = successMessage || typedResponse?.message || 'Operation completed successfully';
       notification.showSuccess(title, message);
     }
     
@@ -90,22 +90,26 @@ export const useHandleApiSuccess = () => {
  * Helper function to extract error messages from API error responses
  * @param error API error object
  */
-export const extractErrorMessage = (error: any): string => {
+export const extractErrorMessage = (error: unknown): string => {
   if (!error) return 'An unexpected error occurred';
   
-  if (error.data?.message) {
-    return error.data.message;
+  const typedError = error as { data?: { message?: string }; message?: string };
+  
+  if (typedError.data?.message) {
+    return typedError.data.message;
   }
   
-  if (error.message) {
-    return error.message;
+  if (typedError.message) {
+    return typedError.message;
   }
   
   return 'An unexpected error occurred';
 };
 
-export default {
+const apiResponseHandler = {
   handleApiSuccess,
   useHandleApiSuccess,
   extractErrorMessage
-}; 
+};
+
+export default apiResponseHandler; 

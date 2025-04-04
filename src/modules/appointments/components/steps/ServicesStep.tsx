@@ -2,8 +2,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Button, Card, Row, Col, Select, Empty } from 'antd';
 import { Form } from '../../../../components/common';
 import { useServicePackages, useServiceTags } from '../../../../modules/appointments/hooks/useServices';
-import { ServicePackage, ServicePackagesData, ServiceTagsData } from '../../../../modules/appointments/services/servicesService';
-import { TagsList, ServiceDetailsTable } from '../shared';
+import { ServicePackage } from '../../../../modules/appointments/services/servicesService';
+import { TagsList } from '../shared';
 import {
   SelectedPackagesTable,
   PackageSelectionDrawer
@@ -46,7 +46,7 @@ const ServicesStep: React.FC<ServicesStepProps> = ({
   }), [drawerState.searchText, drawerState.activeTag]);
   
   const { data: packagesResponse, isLoading: isLoadingPackages } = useServicePackages(queryParams);
-  const { data: tagsResponse, isLoading: isLoadingTags } = useServiceTags();
+  const { data: tagsResponse } = useServiceTags();
   
   const allServiceTags = useMemo(() => {
     return ['All', ...(tagsResponse?.data || [])];

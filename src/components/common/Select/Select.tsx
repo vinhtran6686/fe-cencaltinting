@@ -7,6 +7,7 @@ import { Global, css } from '@emotion/react';
 import { SelectProps as AntSelectProps } from 'antd/es/select';
 import { colors, spacing, borderRadius, shadows } from '../../../theme/tokens';
 import { Input } from '@/components/common/Input';
+import Image from 'next/image';
 
 export interface SelectProps extends Omit<AntSelectProps<any>, 'dropdownRender'> {
   fullWidth?: boolean;
@@ -141,24 +142,20 @@ const EmptyContainer = styled.div`
 
 // Custom arrow icon
 const ArrowIcon = () => (
-  <img
+  <Image
     src="/images/icons/sidebar/right.svg"
     alt="arrow"
-    style={{
-      width: '20px',
-      height: '20px'
-    }}
+    width={20}
+    height={20}
   />
 );
 
 const SearchIcon = () => (
-  <img
+  <Image
     src="/images/icons/sidebar/search-lg.svg"
-    alt="arrow"
-    style={{
-      width: '20px',
-      height: '20px'
-    }}
+    alt="search"
+    width={20}
+    height={20}
   />
 );
 

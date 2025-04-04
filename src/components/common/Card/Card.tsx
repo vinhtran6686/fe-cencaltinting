@@ -2,7 +2,7 @@ import React from 'react';
 import { Card as AntCard } from 'antd';
 import styled from '@emotion/styled';
 import { CardProps as AntCardProps } from 'antd/es/card';
-import { colors, spacing, borderRadius } from '../../../theme/tokens';
+import { colors } from '../../../theme/tokens';
 
 export type CardCustomVariant = 'default' | 'primary' | 'secondary' | 'inline';
 

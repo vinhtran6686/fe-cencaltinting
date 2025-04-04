@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Layout } from 'antd';
-import { colors, spacing } from '../../../theme/tokens';
+import { spacing } from '../../../theme/tokens';
 
 const { Content } = Layout;
 

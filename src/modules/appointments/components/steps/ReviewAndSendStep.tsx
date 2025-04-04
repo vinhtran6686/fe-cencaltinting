@@ -134,10 +134,10 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
     const endDay = selectedMonth.endOf('month');
     
     let currentDay = startDay;
-    while (!currentDay.isAfter(endDay, 'day')) {
-      dates.push(currentDay);
-      currentDay = currentDay.add(1, 'day');
-    }
+    // while (!currentDay.isAfter(endDay, 'day')) {
+    //   dates.push(currentDay);
+    //   currentDay = currentDay.add(1, 'day');
+    // }
     
     return dates;
   };
@@ -189,34 +189,34 @@ const ReviewAndSendStep: React.FC<ReviewAndSendStepProps> = ({
     const items = [];
     const chunkSize = 5;
     
-    for (let i = 0; i < dates.length; i += chunkSize) {
-      const chunk = dates.slice(i, i + chunkSize);
-      items.push(
-        <div key={i} className="date-chunk">
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {chunk.map((date, idx) => (
-              <div
-                key={idx}
-                style={{
-                  width: '18%',
-                  textAlign: 'center',
-                  padding: '12px 8px',
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  backgroundColor: selectedDate?.isSame(date, 'day') ? '#1890ff' : 'transparent',
-                  color: selectedDate?.isSame(date, 'day') ? 'white' : 'inherit',
-                }}
-                onClick={() => handleDateChange(date)}
-              >
-                <div style={{ fontWeight: 'bold' }}>{getDayName(date)}</div>
-                <div style={{ fontSize: '20px' }}>{getDayNumber(date)}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
+    // for (let i = 0; i < dates.length; i += chunkSize) {
+    //   const chunk = dates.slice(i, i + chunkSize);
+    //   items.push(
+    //     <div key={i} className="date-chunk">
+    //       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    //         {chunk.map((date, idx) => (
+    //           <div
+    //             key={idx}
+    //             style={{
+    //               width: '18%',
+    //               textAlign: 'center',
+    //               padding: '12px 8px',
+    //               border: '1px solid #d9d9d9',
+    //               borderRadius: '4px',
+    //               cursor: 'pointer',
+    //               backgroundColor: selectedDate?.isSame(date, 'day') ? '#1890ff' : 'transparent',
+    //               color: selectedDate?.isSame(date, 'day') ? 'white' : 'inherit',
+    //             }}
+    //             onClick={() => handleDateChange(date)}
+    //           >
+    //             <div style={{ fontWeight: 'bold' }}>{getDayName(date)}</div>
+    //             <div style={{ fontSize: '20px' }}>{getDayNumber(date)}</div>
+    //           </div>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   );
+    // }
     
     return items;
   };

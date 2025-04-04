@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { message, Row, Col } from 'antd';
-import { Button, Card, StepBar } from '@/components/common';
-import { Title } from '@/components/common/Typography';
+import { Card, StepBar } from '@/components/common';
 import { useCreateAppointment } from '../../hooks';
 import ClientInformationStep from '../steps/ClientInformationStep';
 import ServiceSelectionStep from '../steps/ServicesStep';

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Menu } from 'antd'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { UserOutlined } from '@ant-design/icons'
 import { useAppSelector, useAppDispatch } from '../../../store'
@@ -93,15 +94,19 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
       <Link href="/">
         <LogoContainer collapsed={collapsed}>
           {collapsed ? (
-            <img
+            <Image
               src="/images/logo-small.png"
               alt="CenCal Tinting Logo"
+              width={40}
+              height={40}
               style={{ maxWidth: '100%', maxHeight: '100%' }}
             />
           ) : (
-            <img
+            <Image
               src="/images/logo.png"
               alt="CenCal Tinting Logo"
+              width={160}
+              height={40}
               style={{ maxWidth: '100%', maxHeight: '100%' }}
             />
           )}

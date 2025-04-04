@@ -22,7 +22,8 @@ export const isTokenExpired = (token: string): boolean => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.exp * 1000 < Date.now();
-  } catch (e) {
+  } catch (error) {
+    console.error('Token parsing error:', error);
     return true;
   }
 };
@@ -53,6 +54,7 @@ export const refreshToken = async (): Promise<string | null> => {
     
     return null;
   } catch (error) {
+    console.error('Token refresh error:', error);
     clearTokens();
     return null;
   }
@@ -76,6 +78,7 @@ export const login = async (email: string, password: string): Promise<boolean> =
     
     return false;
   } catch (error) {
+    console.error('Login error:', error);
     return false;
   }
 };

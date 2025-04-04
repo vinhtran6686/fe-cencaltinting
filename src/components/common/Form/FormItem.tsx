@@ -134,7 +134,7 @@ export const FormItem: React.FC<FormItemProps> = ({
   fullWidth,
   ...props
 }) => {
-  const [count, setCount] = React.useState(0);
+  const [count] = React.useState(0);
 
   const customLabel = React.useMemo(() => {
     if (!label) return undefined;

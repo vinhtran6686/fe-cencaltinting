@@ -121,4 +121,6 @@ const SelectedPackagesTable = memo(({
   );
 });
 
+SelectedPackagesTable.displayName = 'SelectedPackagesTable';
+
 export default SelectedPackagesTable;
