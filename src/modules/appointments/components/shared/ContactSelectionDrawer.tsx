@@ -1,10 +1,12 @@
-import React, { useState, useCallback } from 'react';
-import { Table, Spin } from 'antd';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Spin } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { Button } from '@/components/common/Button';
 import { CustomDrawer } from '@/components/common/Drawer';
-import { ContactResponse } from '@/modules/appointments/services/contactsService';
 import { Input } from '@/components/common/Input';
+import { ContactResponse } from '@/modules/appointments/services/contactsService';
+import { Table } from '@/components/common/Table';
+import { Checkbox } from '@/components/common/Checkbox';
 import styled from '@emotion/styled';
 import { colors, spacing, borderRadius } from '@/theme/tokens';
 import Image from 'next/image';
@@ -43,7 +45,37 @@ const StyledSearchInput = styled(Input)`
 const ActionContainer = styled.div`
   display: flex;
   gap: ${spacing.md};
-  margin-bottom: ${spacing.md};
+  margin-bottom: ${spacing.xl};
+`;
+
+const TableContainer = styled.div`
+  width: 100%;
+  height: max-content;
+  overflow: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+   
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  } 
+  &::-webkit-scrollbar-track {
+    background: ${colors.grayscale900};
+  }
+  &::-webkit-scrollbar-thumb {
+    background: ${colors.grayscale400};
+    border-radius: ${borderRadius.sm};
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${colors.grayscale600};
+  }
+`;
+
+const DrawerContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `;
 
 const SearchIcon = () => (
@@ -74,18 +106,42 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
   const [searchText, setSearchText] = useState('');
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [isAddingContact, setIsAddingContact] = useState(false);
+  const [drawerWidth, setDrawerWidth] = useState('1133px');
+
+  // Handle window resize for responsive drawer width
+  useEffect(() => {
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      if (windowWidth <= 1133) {
+        setDrawerWidth('100vw');
+      } else {
+        setDrawerWidth('1133px');
+      }
+    };
+    
+    // Set initial width
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Filter contacts by search text
-  const filteredContacts = contacts 
+  const filteredContacts = contacts
     ? contacts.filter((contact: ContactResponse) => {
-        if (!searchText) return true;
-        const lowerCaseSearch = searchText.toLowerCase();
-        return (
-          contact.name?.toLowerCase().includes(lowerCaseSearch) ||
-          contact.email?.toLowerCase().includes(lowerCaseSearch) ||
-          contact.phone?.toLowerCase().includes(lowerCaseSearch)
-        );
-      })
+      if (!searchText) return true;
+      const lowerCaseSearch = searchText.toLowerCase();
+      return (
+        contact.name?.toLowerCase().includes(lowerCaseSearch) ||
+        contact.email?.toLowerCase().includes(lowerCaseSearch) ||
+        contact.phone?.toLowerCase().includes(lowerCaseSearch)
+      );
+    })
     : [];
 
   // Define table columns
@@ -93,6 +149,7 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
     {
       title: 'Name',
       dataIndex: 'name',
+      width: '30%',
       key: 'name',
     },
     {
@@ -109,8 +166,7 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
       title: 'Action',
       key: 'action',
       render: (_, record: ContactResponse) => (
-        <input
-          type="checkbox"
+        <Checkbox
           checked={selectedContactId === record._id}
           onChange={() => setSelectedContactId(record._id)}
           disabled={selectedContactId !== null && selectedContactId !== record._id}
@@ -144,20 +200,20 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
 
   return (
     <CustomDrawer
-      title="Select Contact"
+      title="Contact"
       open={open}
       onClose={handleClose}
       onSave={handleContactSelect}
-      width={800}
+      width={drawerWidth}
       cancelText="Cancel"
       saveText="Select"
       disableSave={!selectedContactId}
     >
-      <div style={{ marginBottom: '24px' }}>
+      <DrawerContent>
         <ActionContainer>
           <SearchContainer>
             <StyledSearchInput
-              placeholder="Search contacts"
+              placeholder="Search by name, phone number or email"
               prefix={<SearchIcon />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
@@ -171,19 +227,19 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
             style={{ width: 48, height: 48 }}
             size="large"
             disabled={isAddingContact}
-          >
-            Add Contact
-          </Button>
+          />
         </ActionContainer>
-        <Table
-          columns={columns}
-          dataSource={filteredContacts}
-          rowKey="_id"
-          loading={isLoading}
-          pagination={false}
-          scroll={{ y: 400 }}
-        />
-      </div>
+        <TableContainer>
+          <Table
+            columns={columns}
+            dataSource={filteredContacts}
+            rowKey="_id"
+            loading={isLoading}
+            pagination={false}
+          // scroll={{ y: 'calc(100vh - 350px)' }}
+          />
+        </TableContainer>
+      </DrawerContent>
     </CustomDrawer>
   );
 };

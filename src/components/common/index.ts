@@ -6,6 +6,8 @@ export * from './Modal';
 export * from './Drawer';
 export * from './Card';
 export * from './Select';
+export * from './Checkbox';
+export * from './Table';
 
 // Export Form components
 export * from './Form';
@@ -20,3 +22,5 @@ export type { CustomDrawerProps } from './Drawer';
 export type { StepBarProps, StepItem } from './StepBar';
 export type { CardProps, CardCustomVariant } from './Card';
 export type { SelectProps } from './Select';
+export type { CheckboxProps } from './Checkbox';
+export type { TableProps } from './Table';

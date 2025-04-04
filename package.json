@@ -27,6 +27,28 @@
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0"
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "crypto": false,
+    "stream": false,
+    "http": false,
+    "https": false,
+    "zlib": false,
+    "util": false,
+    "url": false,
+    "assert": false,
+    "tty": false,
+    "constants": false,
+    "querystring": false,
+    "punycode": false,
+    "child_process": false,
+    "electron": false,
+    "module": false,
+    "./node_modules/find-root/index.js": "./node_modules/find-root/index.js",
+    "./node_modules/path-type/index.js": "./node_modules/path-type/index.js"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",

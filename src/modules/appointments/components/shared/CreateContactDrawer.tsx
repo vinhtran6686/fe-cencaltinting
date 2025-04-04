@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Form } from '@/components/common/Form';
+import React, { useCallback, useMemo } from 'react';
+import { Form, FormItem } from '@/components/common/Form';
 import { Input, TextArea } from '@/components/common/Input';
 import { CustomDrawer } from '@/components/common/Drawer';
 import { Paragraph } from '@/components/common/Typography';
@@ -7,6 +7,7 @@ import { CreateContactPayload } from '@/modules/appointments/services/contactsSe
 import { useContactValidation, useCreateContact } from '@/modules/appointments/hooks';
 import { useNotification } from '@/components/providers/NotificationProvider';
 import { FormInstance } from 'antd';
+import { Rule } from 'antd/es/form';
 
 interface CreateContactDrawerProps {
   open: boolean;
@@ -14,18 +15,29 @@ interface CreateContactDrawerProps {
   onSuccess: (newContactId: string) => void;
 }
 
-const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
-  open,
-  onClose,
-  onSuccess,
-}) => {
-  const [form] = Form.useForm();
-  const contactValidation = useContactValidation();
-  const notification = useNotification();
-  
-  // Create contact mutation
-  const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
+interface ContactFormProps {
+  form: FormInstance;
+  handleFinish: (values: any) => void;
+  contactValidation: {
+    nameRules: Rule[];
+    emailRules: Rule[];
+    phoneRules: Rule[];
+    additionalPhoneRules: Rule[];
+    noteRules: Rule[];
+    [key: string]: any;
+  };
+}
 
+const initialFormState = {
+  contactName: '',
+  contactEmail: '',
+  contactPhone: '',
+  contactAdditionalPhone: '',
+  contactNote: ''
+};
+
+// Form component được tách riêng để tránh re-render không cần thiết
+const ContactForm: React.FC<ContactFormProps> = React.memo(({ form, handleFinish, contactValidation }) => {
   // Custom validator to ensure additional phone is different from phone
   const validateDifferentPhone = useCallback((_: any, value: string) => {
     if (!value) return Promise.resolve();
@@ -38,47 +50,101 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
     return Promise.resolve();
   }, [form]);
 
-  // Handle create contact submission
-  const handleCreateContactSubmit = async () => {
-    try {
-      // Validate form fields
-      const values = await form.validateFields();
+  // Memoize form rules
+  const additionalPhoneRules = useMemo(() => [
+    ...contactValidation.additionalPhoneRules.slice(0, 2),
+    { validator: validateDifferentPhone }
+  ], [contactValidation.additionalPhoneRules, validateDifferentPhone]);
 
-      // Transform form data to match API payload
-      const payload: CreateContactPayload = {
-        name: values.contactName,
-        email: values.contactEmail,
-        phone: values.contactPhone,
-        additionalInformation: values.contactAdditionalPhone,
-        notes: values.contactNote,
-      };
+  return (
+    <Form
+      layout="vertical"
+      form={form}
+      onFinish={handleFinish}
+      initialValues={initialFormState}
+    >
+      <FormItem
+        label="Name"
+        name="contactName"
+        rules={contactValidation.nameRules}
+      >
+        <Input placeholder="Name" />
+      </FormItem>
+      <FormItem
+        label="Email"
+        name="contactEmail"
+        rules={contactValidation.emailRules}
+      >
+        <Input placeholder="Email" />
+      </FormItem>
+      <FormItem
+        label="Phone Number"
+        name="contactPhone"
+        rules={contactValidation.phoneRules}
+      >
+        <Input placeholder="Phone Number" />
+      </FormItem>
+      <FormItem
+        label="Additional Phone Number"
+        name="contactAdditionalPhone"
+        rules={additionalPhoneRules}
+      >
+        <Input placeholder="Phone Number" />
+      </FormItem>
+      <FormItem
+        label="Note"
+        name="contactNote"
+        rules={contactValidation.noteRules}
+      >
+        <TextArea placeholder="Enter" rows={1} style={{ minHeight: 40 }} />
+      </FormItem>
+    </Form>
+  );
+});
 
-      // Call the create contact API with disabled automatic notifications
-      createContact({
-        data: payload,
-        options: { showSuccessNotification: false }
-      }, {
-        onSuccess: (newContact) => {
-          // Close the drawer
-          onClose();
+const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
+  open,
+  onClose,
+  onSuccess,
+}) => {
+  const [form] = Form.useForm();
+  const contactValidation = useContactValidation();
+  const notification = useNotification();
+  
+  const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
 
-          // Invoke success callback
-          onSuccess(newContact._id);
+  // Form submission handler
+  const handleFinish = useCallback((values: any) => {
+    // Transform form data to match API payload
+    const payload: CreateContactPayload = {
+      name: values.contactName,
+      email: values.contactEmail,
+      phone: values.contactPhone,
+      additionalInformation: values.contactAdditionalPhone,
+      notes: values.contactNote,
+    };
 
-          // Show success notification
-          notification.showSuccess(
-            'Contact Created',
-            `${newContact.name} has been added to your contacts.`
-          );
+    // Call the create contact API
+    createContact({
+      data: payload,
+      options: { showSuccessNotification: false }
+    }, {
+      onSuccess: (newContact) => {
+        form.resetFields();
+        onClose();
+        onSuccess(newContact._id);
+        notification.showSuccess(
+          'Contact Created',
+          `${newContact.name} has been added to your contacts.`
+        );
+      },
+    });
+  }, [createContact, form, notification, onClose, onSuccess]);
 
-          // Reset form
-          form.resetFields();
-        },
-      });
-    } catch (error) {
-      // Validation error handled by the form - errors will be displayed automatically
-    }
-  };
+  // Trigger form submit from drawer save button
+  const handleCreateContactSubmit = useCallback(() => {
+    form.submit();
+  }, [form]);
 
   // Reset form when drawer opens
   const handleOpen = useCallback(() => {
@@ -107,54 +173,16 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
       width={400}
       cancelText="Cancel"
       saveText={isCreatingContact ? "Saving..." : "Save"}
-      disableSave={isCreatingContact} // Only disable during API call
+      disableSave={isCreatingContact}
     >
       <Paragraph>All fields are required except Note.</Paragraph>
-      <Form
-        layout="vertical"
-        form={form}
-      >
-        <Form.Item
-          label="Name"
-          name="contactName"
-          rules={contactValidation.nameRules}
-        >
-          <Input placeholder="Name" />
-        </Form.Item>
-        <Form.Item
-          label="Email"
-          name="contactEmail"
-          rules={contactValidation.emailRules}
-        >
-          <Input placeholder="Email" />
-        </Form.Item>
-        <Form.Item
-          label="Phone Number"
-          name="contactPhone"
-          rules={contactValidation.phoneRules}
-        >
-          <Input placeholder="Phone Number" />
-        </Form.Item>
-        <Form.Item
-          label="Additional Phone Number"
-          name="contactAdditionalPhone"
-          rules={[
-            ...contactValidation.additionalPhoneRules.slice(0, 2), // Use the first two rules (required, phoneInternational)
-            { validator: validateDifferentPhone } // Add custom validator directly
-          ]}
-        >
-          <Input placeholder="Phone Number" />
-        </Form.Item>
-        <Form.Item
-          label="Note"
-          name="contactNote"
-          rules={contactValidation.noteRules}
-        >
-          <TextArea placeholder="Enter" rows={1} style={{ minHeight: 40 }} />
-        </Form.Item>
-      </Form>
+      <ContactForm 
+        form={form} 
+        handleFinish={handleFinish} 
+        contactValidation={contactValidation}
+      />
     </CustomDrawer>
   );
 };
 
-export default CreateContactDrawer; 
+export default React.memo(CreateContactDrawer); 
