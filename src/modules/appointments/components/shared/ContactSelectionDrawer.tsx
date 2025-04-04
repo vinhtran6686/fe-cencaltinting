@@ -18,6 +18,8 @@ interface ContactSelectionDrawerProps {
   onAddContactClick: () => void;
   contacts: ContactResponse[] | undefined;
   isLoading: boolean;
+  zIndex?: number;
+  onDrawerOpen?: () => void;
 }
 
 // Styled components
@@ -102,6 +104,8 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
   onAddContactClick,
   contacts = [],
   isLoading,
+  zIndex = 1000,
+  onDrawerOpen,
 }) => {
   const [searchText, setSearchText] = useState('');
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
@@ -130,6 +134,13 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // Effect to handle drawer opening
+  useEffect(() => {
+    if (open && onDrawerOpen) {
+      onDrawerOpen();
+    }
+  }, [open, onDrawerOpen]);
 
   // Filter contacts by search text
   const filteredContacts = contacts
@@ -208,6 +219,7 @@ const ContactSelectionDrawer: React.FC<ContactSelectionDrawerProps> = ({
       cancelText="Cancel"
       saveText="Select"
       disableSave={!selectedContactId}
+      zIndex={zIndex}
     >
       <DrawerContent>
         <ActionContainer>

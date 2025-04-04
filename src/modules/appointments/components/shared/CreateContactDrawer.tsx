@@ -13,6 +13,8 @@ interface CreateContactDrawerProps {
   open: boolean;
   onClose: () => void;
   onSuccess: (newContactId: string) => void;
+  isContactListOpen?: boolean;
+  zIndex?: number;
 }
 
 interface ContactFormProps {
@@ -106,6 +108,8 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
   open,
   onClose,
   onSuccess,
+  isContactListOpen = false,
+  zIndex = 1001,
 }) => {
   const [form] = Form.useForm();
   const contactValidation = useContactValidation();
@@ -124,10 +128,13 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
       notes: values.contactNote,
     };
 
-    // Call the create contact API
+    // Call the create contact API with refreshOnSuccess flag
     createContact({
       data: payload,
-      options: { showSuccessNotification: false }
+      options: { 
+        showSuccessNotification: false,
+        refreshOnSuccess: isContactListOpen 
+      }
     }, {
       onSuccess: (newContact) => {
         form.resetFields();
@@ -139,12 +146,19 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
         );
       },
     });
-  }, [createContact, form, notification, onClose, onSuccess]);
+  }, [createContact, form, notification, onClose, onSuccess, isContactListOpen]);
 
   // Trigger form submit from drawer save button
   const handleCreateContactSubmit = useCallback(() => {
-    form.submit();
-  }, [form]);
+    const formValues = form.getFieldsValue();
+    form.validateFields()
+      .then(values => {
+        handleFinish(values);
+      })
+      .catch(errorInfo => {
+        console.log("Validation failed:", errorInfo);
+      });
+  }, [form, handleFinish]);
 
   // Reset form when drawer opens
   const handleOpen = useCallback(() => {
@@ -174,6 +188,7 @@ const CreateContactDrawer: React.FC<CreateContactDrawerProps> = ({
       cancelText="Cancel"
       saveText={isCreatingContact ? "Saving..." : "Save"}
       disableSave={isCreatingContact}
+      zIndex={zIndex}
     >
       <Paragraph>All fields are required except Note.</Paragraph>
       <ContactForm 

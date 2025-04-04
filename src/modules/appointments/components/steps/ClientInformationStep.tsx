@@ -42,8 +42,11 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const [contactListDrawerVisible, setContactListDrawerVisible] = useState(false);
   const [selectedContact, setSelectedContact] = useState<ContactResponse | null>(null);
 
-  // Fetch contacts
-  const { data: contactsData, isLoading: isLoadingContacts, refetch: refetchContacts } = useContacts({ limit: 100 });
+  // Fetch contacts with initial fetch disabled
+  const { data: contactsData, isLoading: isLoadingContacts, refetch: refetchContacts } = useContacts({ 
+    limit: 100,
+    enabled: false // Disable automatic fetching on component mount
+  });
 
   // Fetch vehicle data
   const { data: yearsData, isLoading: isLoadingYears } = useVehicleYears();
@@ -100,6 +103,7 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   // Handle open contact list drawer
   const showContactListDrawer = useCallback(() => {
     setContactListDrawerVisible(true);
+    // We'll rely on the onDrawerOpen callback to fetch data, don't call refetchContacts here
   }, []);
 
   const closeContactListDrawer = useCallback(() => {
@@ -128,10 +132,21 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   }, [contactsData, form, closeContactListDrawer]);
 
   // Handle successful contact creation
-  const handleContactCreated = useCallback((newContactId: string) => {
-    // Refetch contacts to update list
-    refetchContacts();
-  }, [refetchContacts]);
+  const handleContactCreated = useCallback((newContactId: string) => { 
+    // If we need to select the newly created contact:
+    if (newContactId) {
+      form.setFieldsValue({ contactId: newContactId });
+      // We'll get the contact details in the next render when contacts are refetched
+    }
+  }, [form]);
+
+  // Only fetch contacts once when drawer opens
+  const handleDrawerOpen = useCallback(() => {
+    // Only fetch if we don't already have data or if it's stale
+    if (!contactsData || Date.now() - (contactsData._fetchTime || 0) > 60000) {
+      refetchContacts();
+    }
+  }, [contactsData, refetchContacts]);
 
   return (
     <div>
@@ -336,6 +351,8 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
         onAddContactClick={showCreateContactDrawer}
         contacts={contactsData?.data}
         isLoading={isLoadingContacts}
+        zIndex={1000}
+        onDrawerOpen={handleDrawerOpen}
       />
 
       {/* Create Contact Drawer */}
@@ -343,6 +360,8 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
         open={createContactDrawerVisible}
         onClose={closeCreateContactDrawer}
         onSuccess={handleContactCreated}
+        isContactListOpen={contactListDrawerVisible}
+        zIndex={1001}
       />
     </div>
   );

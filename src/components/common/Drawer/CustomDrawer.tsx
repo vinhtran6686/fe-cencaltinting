@@ -82,9 +82,6 @@ export const CustomDrawer: React.FC<CustomDrawerProps> = ({
     if (onSave) {
       onSave();
     }
-    if (onClose) {
-      onClose();
-    }
   };
 
   const footer = (
