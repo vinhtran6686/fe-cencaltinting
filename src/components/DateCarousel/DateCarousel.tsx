@@ -135,7 +135,7 @@ export const DateCarousel: React.FC<DateCarouselProps> = ({
     return date.getDate();
   };
   
-  const slides = [];
+  const slides: Date[][] = [];
   for (let i = 0; i < dates.length; i += daysPerSlide) {
     slides.push(dates.slice(i, i + daysPerSlide));
   }
