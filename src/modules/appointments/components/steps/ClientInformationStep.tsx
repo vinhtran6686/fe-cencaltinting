@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Space, Divider, Row, Col, Spin, Flex } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Space, Divider, Row, Col, Flex, Spin } from 'antd';
 import { Typography as AntTypography } from 'antd';
 import { Button } from '@/components/common/Button';
 import { Card } from '@/components/common/Card';
 import { Form, FormItem } from '@/components/common/Form';
-import { Input, TextArea } from '@/components/common/Input';
-import { CustomDrawer } from '@/components/common/Drawer';
-import { Title, Paragraph, Text } from '@/components/common/Typography';
+import { Input } from '@/components/common/Input';
+import { Title, Text } from '@/components/common/Typography';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   useContacts,
@@ -15,14 +14,14 @@ import {
   useVehicleModels,
   useVehicleTypes,
   useCreateContact,
-  useContactValidation
 } from '@/modules/appointments/hooks';
-import { ContactResponse, CreateContactPayload } from '@/modules/appointments/services/contactsService';
+import { ContactResponse } from '@/modules/appointments/services/contactsService';
 import { VehicleMake, VehicleModel, VehicleType, VehicleYear } from '@/modules/appointments/services/vehiclesService';
 import { colors, spacing } from '@/theme/tokens';
 import { Select } from '@/components/common/Select';
 import FormValidation from '@/components/common/Form/FormValidation';
-import { useNotification } from '@/components/providers/NotificationProvider';
+import { ContactSelectionDrawer, CreateContactDrawer } from '../shared';
+import { StyledSelectContactBox } from '../../styles/ClientInformation.styles';
 
 const { Link } = AntTypography;
 
@@ -38,22 +37,13 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   onNext,
 }) => {
   const [form] = Form.useForm();
-  const [contactForm] = Form.useForm();
   const [isManualEntry, setIsManualEntry] = useState(formData.vehicleDetails?.isCustomEntry || false);
   const [createContactDrawerVisible, setCreateContactDrawerVisible] = useState(false);
+  const [contactListDrawerVisible, setContactListDrawerVisible] = useState(false);
   const [selectedContact, setSelectedContact] = useState<ContactResponse | null>(null);
 
-  // Get contact validation rules
-  const contactValidation = useContactValidation();
-
-  // Get notification service
-  const notification = useNotification();
-
   // Fetch contacts
-  const { data: contactsData, isLoading: isLoadingContacts } = useContacts({ limit: 100 });
-
-  // Create contact mutation
-  const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
+  const { data: contactsData, isLoading: isLoadingContacts, refetch: refetchContacts } = useContacts({ limit: 100 });
 
   // Fetch vehicle data
   const { data: yearsData, isLoading: isLoadingYears } = useVehicleYears();
@@ -61,6 +51,9 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   const { data: modelsData, isLoading: isLoadingModels } = useVehicleModels();
   const { data: typesData, isLoading: isLoadingTypes } = useVehicleTypes();
 
+  const { mutate: createContact, isPending: isCreatingContact } = useCreateContact();
+
+  // Find and set selected contact when contact ID changes or when contacts data is loaded
   useEffect(() => {
     if (contactsData?.data && formData.contactId) {
       const contact = contactsData.data.find((c: any) => c._id === formData.contactId);
@@ -69,18 +62,6 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
       }
     }
   }, [contactsData, formData.contactId]);
-
-  // Custom validator to ensure additional phone is different from phone
-  const validateDifferentPhone = (_: any, value: string) => {
-    if (!value) return Promise.resolve();
-
-    const mainPhone = contactForm.getFieldValue('contactPhone');
-    if (value === mainPhone) {
-      return Promise.reject('Additional phone must be different from primary phone');
-    }
-
-    return Promise.resolve();
-  };
 
   // Handle form submission
   const handleSubmit = (values: any) => {
@@ -106,74 +87,51 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
   };
 
   // Toggle between select dropdown and manual entry
-  const toggleManualEntry = () => {
-    setIsManualEntry(!isManualEntry);
-  };
-
-  // Handle contact selection
-  const handleContactSelect = (value: string) => {
-    const contact = contactsData?.data.find((c: any) => c._id === value);
-    if (contact) {
-      form.setFieldsValue({ contactId: value });
-      setSelectedContact(contact);
-    }
-  };
+  const toggleManualEntry = useCallback(() => {
+    setIsManualEntry(prevState => !prevState);
+  }, []);
 
   // Handle removing selected contact
-  const handleRemoveContact = () => {
+  const handleRemoveContact = useCallback(() => {
     form.setFieldsValue({ contactId: undefined });
     setSelectedContact(null);
-  };
+  }, [form]);
+
+  // Handle open contact list drawer
+  const showContactListDrawer = useCallback(() => {
+    setContactListDrawerVisible(true);
+  }, []);
+
+  const closeContactListDrawer = useCallback(() => {
+    setContactListDrawerVisible(false);
+  }, []);
 
   // Handle create contact drawer
-  const showCreateContactDrawer = () => {
+  const showCreateContactDrawer = useCallback(() => {
     setCreateContactDrawerVisible(true);
-    contactForm.resetFields();
-  };
+  }, []);
 
-  const closeCreateContactDrawer = () => {
+  const closeCreateContactDrawer = useCallback(() => {
     setCreateContactDrawerVisible(false);
-  };
+  }, []);
 
-  // Handle create contact submission
-  const handleCreateContactSubmit = async () => {
-    try {
-      // Validate form fields
-      const values = await contactForm.validateFields();
-
-      // Transform form data to match API payload
-      const payload: CreateContactPayload = {
-        name: values.contactName,
-        email: values.contactEmail,
-        phone: values.contactPhone,
-        additionalInformation: values.contactAdditionalPhone,
-        notes: values.contactNote,
-      };
-
-      // Call the create contact API with disabled automatic notifications
-      createContact({
-        data: payload,
-        options: { showSuccessNotification: false }
-      }, {
-        onSuccess: (newContact) => {
-          // Select the newly created contact
-          form.setFieldsValue({ contactId: newContact._id });
-          setSelectedContact(newContact);
-
-          // Close the drawer
-          closeCreateContactDrawer();
-
-          // Show success notification
-          notification.showSuccess(
-            'Contact Created',
-            `${newContact.name} has been added to your contacts.`
-          );
-        },
-      });
-    } catch (error) {
-      // Validation error handled by the form - errors will be displayed automatically
+  // Handle contact selected from drawer
+  const handleContactSelected = useCallback((contactId: string) => {
+    if (contactsData?.data) {
+      const contact = contactsData.data.find((c: any) => c._id === contactId);
+      if (contact) {
+        form.setFieldsValue({ contactId });
+        setSelectedContact(contact);
+        closeContactListDrawer();
+      }
     }
-  };
+  }, [contactsData, form, closeContactListDrawer]);
+
+  // Handle successful contact creation
+  const handleContactCreated = useCallback((newContactId: string) => {
+    // Refetch contacts to update list
+    refetchContacts();
+  }, [refetchContacts]);
 
   return (
     <div>
@@ -195,20 +153,19 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
       >
         {/* Contact Selection */}
         <div style={{ marginBottom: '24px' }}>
-
           {selectedContact ? (
             <Flex vertical gap={spacing.sm}>
               <Title level={5} style={{ margin: '0' }}>Contact <span style={{ color: 'red' }}>*</span></Title>
               <FormItem name="contactId" hidden>
-                  <Input />
-                </FormItem>
+                <Input />
+              </FormItem>
               <Space size="small">
                 <Text style={{ fontWeight: 'bold', width: '64px', color: colors.descriptionText, whiteSpace: 'nowrap' }}>Client</Text>
                 <Space size="small" style={{ flex: 1, flexWrap: 'wrap' }}>
                   <Text ellipsis={{ tooltip: true }} style={{ maxWidth: '100%' }}>{selectedContact.name} </Text>
-                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }}/>
+                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }} />
                   <Text> {selectedContact.phone} </Text>
-                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }}  />
+                  <Divider type="vertical" style={{ margin: '0 4px', height: '24px' }} />
                   <Text> {selectedContact.email} </Text>
                 </Space>
                 <Button
@@ -216,8 +173,6 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
                   danger
                   icon={<CloseOutlined />}
                   onClick={handleRemoveContact}
-                  style={{
-                  }}
                 />
               </Space>
             </Flex>
@@ -226,18 +181,13 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
               <FormItem
                 name="contactId"
                 label="Contact"
-                rules={contactValidation.contactSelectionRules}
+                rules={[FormValidation.required('Please select a contact')]}
                 style={{ flex: 1, marginBottom: '8px' }}
-              >
-                <Select
-                  placeholder="Select"
-                  onChange={handleContactSelect}
-                  loading={isLoadingContacts}
-                  options={(contactsData?.data || [])?.map((contact: any) => ({
-                    label: `${contact.name} (${contact.phone})`,
-                    value: contact._id
-                  }))}
-                />
+              > 
+                <StyledSelectContactBox onClick={showContactListDrawer}>
+                  Select a contact
+                  <span></span>
+                </StyledSelectContactBox>
               </FormItem>
               <Button
                 icon={isCreatingContact ? <Spin size="small" /> : <PlusOutlined />}
@@ -378,62 +328,22 @@ const ClientInformationStep: React.FC<ClientInformationStepProps> = ({
         </div>
       </Form>
 
+      {/* Contact Selection Drawer */}
+      <ContactSelectionDrawer
+        open={contactListDrawerVisible}
+        onClose={closeContactListDrawer}
+        onSelect={handleContactSelected}
+        onAddContactClick={showCreateContactDrawer}
+        contacts={contactsData?.data}
+        isLoading={isLoadingContacts}
+      />
+
       {/* Create Contact Drawer */}
-      <CustomDrawer
-        title="Add Contact"
+      <CreateContactDrawer
         open={createContactDrawerVisible}
         onClose={closeCreateContactDrawer}
-        onSave={handleCreateContactSubmit}
-        width={400}
-        cancelText="Cancel"
-        saveText={isCreatingContact ? "Saving..." : "Save"}
-        disableSave={isCreatingContact} // Only disable during API call
-      >
-        <Paragraph>All fields are required except Note.</Paragraph>
-        <Form
-          layout="vertical"
-          form={contactForm}
-        >
-          <FormItem
-            label="Name"
-            name="contactName"
-            rules={contactValidation.nameRules}
-          >
-            <Input placeholder="Name" />
-          </FormItem>
-          <FormItem
-            label="Email"
-            name="contactEmail"
-            rules={contactValidation.emailRules}
-          >
-            <Input placeholder="Email" />
-          </FormItem>
-          <FormItem
-            label="Phone Number"
-            name="contactPhone"
-            rules={contactValidation.phoneRules}
-          >
-            <Input placeholder="Phone Number" />
-          </FormItem>
-          <FormItem
-            label="Additional Phone Number"
-            name="contactAdditionalPhone"
-            rules={[
-              ...contactValidation.additionalPhoneRules.slice(0, 2), // Use the first two rules (required, phoneInternational)
-              { validator: validateDifferentPhone } // Add custom validator directly
-            ]}
-          >
-            <Input placeholder="Phone Number" />
-          </FormItem>
-          <FormItem
-            label="Note"
-            name="contactNote"
-            rules={contactValidation.noteRules}
-          >
-            <TextArea placeholder="Enter" rows={1} style={{ minHeight: 40 }} />
-          </FormItem>
-        </Form>
-      </CustomDrawer>
+        onSuccess={handleContactCreated}
+      />
     </div>
   );
 };

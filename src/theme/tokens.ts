@@ -20,6 +20,7 @@ export const colors = {
 
   // Form Item
   formItemBackground: '#2F323E',
+  formItemBackgroundHover: '#3F424E',
 
   // Hover colors
   primaryHover: '#1890ff',
