@@ -40,7 +40,7 @@ const CreateAppointmentFlow: React.FC<CreateAppointmentProps> = ({
   const steps = [
     {
       title: 'Step 1',
-      description: 'Enter the client information',
+      description: 'Client Information',
       content: (
         <ClientInformationStep
           formData={formData}
@@ -51,7 +51,7 @@ const CreateAppointmentFlow: React.FC<CreateAppointmentProps> = ({
     },
     {
       title: 'Step 2',
-      description: 'Select the services',
+      description: 'Services',
       content: (
         <ServiceSelectionStep
           formData={formData}
@@ -63,7 +63,7 @@ const CreateAppointmentFlow: React.FC<CreateAppointmentProps> = ({
     },
     {
       title: 'Step 3',
-      description: 'Review the appointment details and send the appointment',
+      description: 'Review & Send',
       content: (
         <ReviewAndSendStep
           formData={formData}
@@ -141,16 +141,16 @@ const CreateAppointmentFlow: React.FC<CreateAppointmentProps> = ({
 
   return (
     <div>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} md={16}>
+      <Row gutter={[16, 16]} style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+        <Col flex="1">
           <Card variant="default">
             <div className="steps-content" style={{ marginBottom: '24px' }}>
               {steps[currentStep].content}
             </div>
           </Card>
         </Col>
-        <Col xs={24} md={8}>
-          <Card variant="secondary">
+        <Col style={{ width: 260, flexShrink: 0 }}>
+          <Card variant="secondary" style={{ position: 'sticky', top: 16 }}>
             <StepBar
               current={currentStep}
               orientation="vertical"

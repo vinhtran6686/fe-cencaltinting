@@ -39,7 +39,22 @@ export const colors = {
   scrollbarThumb: '#A4A8B7',
 
   // Typography
-  descriptionText: '#A4A8B7'
+  descriptionText: '#A4A8B7',
+
+  //grayscale
+  grayscale1000: '#18181B',
+  grayscale900: '#27272A',
+  grayscale800: '#3F3F46',
+  grayscale700: '#52525B',
+  grayscale600: '#71717A',
+  grayscale500: '#7F859F',
+  grayscale400: '#D4D4D8',
+  grayscale300: '#E4E4E7',
+  grayscale200: '#F4F4F5',
+  grayscale100: '#F9FAFB',
+
+  white: '#FFFFFF',
+  white200: '#D9D9D9',
 }
 
 // Spacing tokens

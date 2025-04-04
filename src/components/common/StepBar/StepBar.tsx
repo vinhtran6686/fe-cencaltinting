@@ -37,44 +37,67 @@ const StyledStepsContainer = styled.div<StyledStepsProps>`
   }
 `;
 
-const StyledSteps = styled(Steps)<StyledStepsProps>`
+const StyledSteps = styled(Steps) <StyledStepsProps>`
   &.ant-steps {
     .ant-steps-item-title {
-      font-weight: 500;
+      font-size: 14px !important;
+      line-height: 22px !important;
+      color: ${colors.grayscale500} !important;
     }
 
     .ant-steps-item-description {
-      max-width: none;
+      font-weight: 700 !important;
+      font-size: 16px !important;
+      line-height: 24px !important;
+      color: ${colors.white} !important;
+      padding-bottom: 36px !important;
     }
-    
-    .ant-steps-item-active .ant-steps-item-icon {
-      background-color: ${colors.primary};
-      border-color: ${colors.primary};
-    }
-    
-    .ant-steps-item-finish .ant-steps-item-icon {
-      background-color: white;
-      border-color: ${colors.primary};
-      
-      .ant-steps-icon {
-        color: ${colors.primary};
+    .ant-steps-item{ 
+      &-icon{
+        position: relative; 
+        background: none;
+        border-width: 2px;
+        border-color: ${colors.white200};
+        span{
+          display: none;
+        }
       }
-    }
-    
-    .ant-steps-item-finish .ant-steps-item-tail::after {
-      background-color: ${colors.primary};
-    }
-    
-    ${props => props.orientation === 'vertical' ? `
-      padding: ${spacing.md};
-      border: 1px solid ${colors.borderLight};
-      border-radius: ${spacing.xs};
-      background-color: white;
-      
-      .ant-steps-item {
-        margin-bottom: ${spacing.sm};
+      &-active{ 
+        border-width: 4px;
+        .ant-steps-item-icon{
+          position: relative; 
+          border-width: 2px;
+          border-color: ${colors.primary};
+          &:before{
+            content: '';
+            width: 16px !important;
+            height: 16px !important;
+            border-radius: 50%;
+            background: ${colors.primary};
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          } 
+        }
       }
-    ` : ''}
+      &-finish{
+        .ant-steps-item-icon{
+          border-color: ${colors.primary};
+          background: ${colors.primary};
+          span{
+            display: inline-block;
+            color: ${colors.white};
+          }
+        }
+      }
+    } 
+    .ant-steps-item-tail{
+      height: calc(100% - 32px) !important;
+      top: 32px !important;
+      padding: 0 !important;
+      background: ${colors.white200} !important;
+    }
   }
 `;
 
@@ -94,8 +117,8 @@ export const StepBar: React.FC<StepBarProps> = ({
   }));
 
   return (
-    <StyledStepsContainer 
-      fixedToSide={fixedToSide} 
+    <StyledStepsContainer
+      fixedToSide={fixedToSide}
       orientation={orientation}
       className={className}
     >
